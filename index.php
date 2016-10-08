@@ -4,6 +4,7 @@
 		header("location:pages/home.php");
 	}
 ?>
+<!--Written By Harrison Lambert-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
