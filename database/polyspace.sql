@@ -21,7 +21,7 @@ create index XFK_USER_ORG on ORG
 );
 
 /*==============================================================*/
-/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/* Index: XFK_USER_ORG_UPDATED                             */
 /*==============================================================*/
 create index XFK_USER_ORG_UPDATED on ORG
 (
@@ -48,7 +48,7 @@ create unique index XPK_PROJECT on PROJECT
 );
 
 /*==============================================================*/
-/* Index: XFK_COMPANY_DOCUMENT                                  */
+/* Index: XFK_ORG_PROJECT		                                */
 /*==============================================================*/
 create index XFK_ORG_PROJECT on PROJECT
 (
@@ -118,12 +118,15 @@ create table USER
    ID                   BIGINT not null auto_increment PRIMARY KEY,
    PRIM_TEAM_ID         BIGINT not null,
    USERNAME             VARCHAR(30) not null,
+   PASSWORD				VARCHAR(255) not null,
    USER_TYPE_CODE       VARCHAR(20) not null,
    EMAIL                VARCHAR(255) not null,
+   PHONE				VARCHAR(60),
    FIRST_NAME           VARCHAR(30) not null,
    LAST_NAME            VARCHAR(30) not null,
    LAST_LOGIN_DATE      DATETIME,
    LOGIN_COUNTER        INT,
+   APPROVAL             INT(1) not null default 0,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
    UPDATED_DATE         timestamp default now() on update now()
 );
@@ -397,4 +400,42 @@ create index XFK_USER_REQUIREMENT on REQUIREMENT
 create index XFK_USER_REQUIREMENT_UPDATED on REQUIREMENT
 (
    UPDATED_BY_USER_ID
+);
+
+create table CONTACT
+(
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   PHONE				VARCHAR(60),
+   EMAIL                VARCHAR(255) not null,
+   FIRST_NAME           VARCHAR(30) not null,
+   LAST_NAME            VARCHAR(30) not null,
+   LAST_LOGIN_DATE      DATETIME,
+   LOGIN_COUNTER        INT,
+   APPROVAL             INT(1) not null default 0,
+   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
+   UPDATED_DATE         timestamp default now() on update now()
+);
+
+/*==============================================================*/
+/* Index: XPK_USER                                              */
+/*==============================================================*/
+create unique index XPK_USER on USER
+(
+   ID
+);
+
+/*==============================================================*/
+/* Index: XFK_COMPANY_USER                                      */
+/*==============================================================*/
+create index XFK_TEAM_USER on USER
+(
+   PRIM_TEAM_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_USER_TYPE_USER on USER
+(
+   USER_TYPE_CODE
 );
