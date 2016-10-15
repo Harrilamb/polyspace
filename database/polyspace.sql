@@ -15,7 +15,7 @@ create unique index XPK_ORGANIZATION on ORGANIZATION
    ID
 );
 
-create index XFK_USER_ORG on ORG
+create index XFK_USER_ORG on ORGANIZATION
 (
    CREATED_BY_USER_ID
 );
@@ -23,7 +23,7 @@ create index XFK_USER_ORG on ORG
 /*==============================================================*/
 /* Index: XFK_USER_ORG_UPDATED                             */
 /*==============================================================*/
-create index XFK_USER_ORG_UPDATED on ORG
+create index XFK_USER_ORG_UPDATED on ORGANIZATION
 (
    UPDATED_BY_USER_ID
 );
@@ -405,21 +405,24 @@ create index XFK_USER_REQUIREMENT_UPDATED on REQUIREMENT
 create table CONTACT
 (
    ID                   BIGINT not null auto_increment PRIMARY KEY,
-   PHONE				VARCHAR(60),
-   EMAIL                VARCHAR(255) not null,
+   LIAISON_ID			BIGINT,
    FIRST_NAME           VARCHAR(30) not null,
    LAST_NAME            VARCHAR(30) not null,
-   LAST_LOGIN_DATE      DATETIME,
-   LOGIN_COUNTER        INT,
-   APPROVAL             INT(1) not null default 0,
+   TITLE	            VARCHAR(255) not null,
+   DESCRIPTION	        VARCHAR(2000),
+   COMPANY				VARCHAR(255),
+   PHONE				VARCHAR(60),
+   EMAIL                VARCHAR(255) not null,
+   CREATED_BY_USER_ID   BIGINT not null,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
+   UPDATED_BY_USER_ID   BIGINT not null,
    UPDATED_DATE         timestamp default now() on update now()
 );
 
 /*==============================================================*/
 /* Index: XPK_USER                                              */
 /*==============================================================*/
-create unique index XPK_USER on USER
+create unique index XPK_CONTACT on CONTACT
 (
    ID
 );
@@ -427,15 +430,23 @@ create unique index XPK_USER on USER
 /*==============================================================*/
 /* Index: XFK_COMPANY_USER                                      */
 /*==============================================================*/
-create index XFK_TEAM_USER on USER
+create index XFK_USER_CONTACT on CONTACT
 (
-   PRIM_TEAM_ID
+   LIAISON_ID
 );
 
 /*==============================================================*/
-/* Index: XFK_USER_TYPE_USER                                    */
+/* Index: XFK_USER_DOCUMENT                                     */
 /*==============================================================*/
-create index XFK_USER_TYPE_USER on USER
+create index XFK_USER_CONTACT on ENTRY
 (
-   USER_TYPE_CODE
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_CONTACT_UPDATED on ENTRY
+(
+   UPDATED_BY_USER_ID
 );

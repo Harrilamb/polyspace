@@ -30,11 +30,22 @@
 			<div class="col-xs-4 col-sm-3 col-md-2 col-lg-2">
 				<h2>Resources</h2>
 				<ul>
-					<li class="btn-link"><a href="../docs/rfp.pdf" target="_blank"><p>Request For Proposal</p></a></li>
-			  		<li class="btn-link"><a href="https://drive.google.com/drive/folders/0B9f10mN88s-xRWd2MjNtdmlVcW8?usp=sharing" target="_blank"><p>Google Drive</p></a></li>
-			  		<li class="btn-link"><a href="../docs/SMAD.pdf" target="_blank"><p>SMAD PDF</p></a></li>
-			  		<li class="btn-link"><a href="../docs/firstResponse.pdf" target="_blank"><p>1st Round Responses</p></a></li>
-			  		<li class="btn-link"><a href="https://www.agi.com/products/stk/" target="_blank"><p>AGI STK Software</p></a></li>
+					<li class="btn-link"><a href="../docs/rfp.pdf" target="_blank">Request For Proposal</a></li>
+			  		<li class="btn-link driveBtn">Google Drive</li>
+			  			<ul class="driveList dlHidden">
+			  				<li>Team 1</li>
+			  				<li class="btn-link"><a href="https://drive.google.com/drive/folders/0B9f10mN88s-xRWd2MjNtdmlVcW8?usp=sharing" target="_blank">Team 2</a></li>
+			  				<li>Team 3</li>
+			  				<li>Team 4</li>
+			  				<li>Team 5</li>
+			  				<li>Team 6</li>
+			  				<li>Team 7</li>
+			  			</ul>
+			  		<li class="btn-link"><a href="../docs/SMAD.pdf" target="_blank">SMAD PDF</a></li>
+			  		<li class="btn-link"><a href="../docs/firstResponse.pdf" target="_blank">1st Round Responses</a></li>
+			  		<li class="btn-link"><a href="../docs/NASA_Syst.pdf" target="_blank">NASA Systems Handbook</a></li>
+			  		<li class="btn-link"><a href="https://www.agi.com/products/stk/" target="_blank">AGI STK Software</a></li>
+			  		<li class="btn-link"><a href="../docs/NOI_Response.pdf" target="_blank">NOI Response</a></li>
 			  	</ul>
 			</div>
 			<div class="col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-1 col-md-6 col-md-offset-0 col-lg-6 col-lg-offset-0">
@@ -48,10 +59,10 @@
 			<div class="col-xs-3 col-xs-offset-0 col-sm-3 col-sm-offset-0 col-md-4 col-lg-4">
 				<h2>Important Shit</h2>
 				<ul>
-					<li><a href="rules.php"><p>RULES</p></a></li>
-					<li><a href="requirements.php"><p>Requirements</p></a></li>
-					<li><a href="qanda.php"><p>Questions and Answers and Stuff</p></a></li>
-					<li><a href="contacts.php"><p>Helpful People</p></a></li>
+					<li><a href="rules.php">RULES</a></li>
+					<li><a href="requirements.php">Requirements</a></li>
+					<li><a href="qanda.php">Questions and Answers and Stuff</a></li>
+					<li><a href="contacts.php">Helpful People</a></li>
 				</ul>
 			</div>
 		</div>

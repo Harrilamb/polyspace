@@ -47,4 +47,12 @@ $(document).ready(function(){
 		  	}
 		  });
 	});
+	$(".driveBtn").click(function(){
+		$(".driveList").toggleClass("dlHidden",function(){});
+		if($(".driveList").hasClass("dlHidden")){
+			$(".driveList").slideUp("fast",function(){});
+		}else{
+			$(".driveList").slideDown("fast",function(){});
+		}
+	});
 });
