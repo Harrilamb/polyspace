@@ -1,16 +1,8 @@
 <?php
 $a=htmlspecialchars($_POST["code"]);
 
-$servername = "localhost";
-$username = "cosmicadmin";
-//$username = "harrison_astrnot";
-$password = "DtQNSBuxFG5aerm4nw";
-//$password = "Zz4A7N9ND2KKm3Rbpq";
-$dbname="polyspace";
-//$dbname = "harrison_polyspace";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password,$dbname);
+include 'dbconnect.php';
+$conn=connectToServer();
 
 // Check connection
 if ($conn->connect_error) {
@@ -29,8 +21,10 @@ if(password_verify($a,$b)==1){
 	session_start();
 	unset($_SESSION["userid"]);
 	unset($_SESSION["username"]);
+	unset($_SESSION["orgid"]);
 	$_SESSION["userid"]=$c;
 	$_SESSION["username"]=$d;
+	$_SESSION["orgid"]=1;
 	echo true;
 }else{
 	echo $c;

@@ -30,7 +30,7 @@ create index XFK_USER_ORG_UPDATED on ORGANIZATION
 
 create table PROJECT
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    TITLE                VARCHAR(40) not null,
    DESCRIPTION          VARCHAR(2000),
    PUBLIC               INT(1) not null default 1,
@@ -73,11 +73,12 @@ create index XFK_USER_PROJECT_UPDATED on PROJECT
 
 create table TEAM
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    NAME	                VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
    PUBLIC               INT(1) not null default 1,
    ACTIVE               INT(1) not null default 1,
+   ORG_ID           	BIGINT not null,
    PROJECT_ID           BIGINT,
    CREATED_BY_USER_ID   BIGINT not null,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
@@ -97,6 +98,15 @@ create index XFK_PROJECT_TEAM on TEAM
 (
    PROJECT_ID
 );
+
+/*==============================================================*/
+/* Index: XFK_ORG_PROJECT		                                */
+/*==============================================================*/
+create index XFK_ORG_TEAM on TEAM
+(
+   ORG_ID
+);
+
 
 /*==============================================================*/
 /* Index: XFK_USER_DOCUMENT                                     */
@@ -119,6 +129,7 @@ create table USER
 (
    ID                   BIGINT not null auto_increment PRIMARY KEY,
    PRIM_TEAM_ID         BIGINT not null,
+   ORG_ID           	BIGINT not null,
    USERNAME             VARCHAR(30) not null,
    PASSWORD				VARCHAR(255) not null,
    USER_TYPE_CODE       BIGINT not null,
@@ -148,6 +159,15 @@ create index XFK_TEAM_USER on USER
 (
    PRIM_TEAM_ID
 );
+
+/*==============================================================*/
+/* Index: XFK_ORG_PROJECT		                                */
+/*==============================================================*/
+create index XFK_ORG_USER on USER
+(
+   ORG_ID
+);
+
 
 /*==============================================================*/
 /* Index: XFK_USER_TYPE_USER                                    */
@@ -180,10 +200,10 @@ create unique index XPK_USER_TYPE on USER_TYPE
 
 create table ENTRY
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    SYSTEMID				BIGINT not null,
    MASTERID				BIGINT,
-   CLONECOUNT			INT(20) AUTO_INCREMENT UNIQUE,
+   CLONECOUNT			INT(20) UNIQUE,
    ENTRY_STATUS_CODE	BIGINT not null default 0,
    TITLE	            VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
@@ -262,7 +282,7 @@ create unique index XPK_ENTRY_STATUS on ENTRY_STATUS
 
 create table REQUIREMENT
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    PROJECT_ID           BIGINT,
    NAME	                VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
@@ -358,7 +378,7 @@ create index XFK_USER_CONTACT_UPDATED on ENTRY
 
 create table SYSTEM
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    PARENT_ID			BIGINT,
    PROJECT_ID           BIGINT,
    TITLE	            VARCHAR(60) not null,
@@ -402,7 +422,7 @@ create index XFK_USER_SYSTEM_UPDATED on SYSTEM
 
 create table VARS
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    PROJECT_ID           BIGINT,
    NAME	                VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
@@ -446,7 +466,7 @@ create index XFK_USER_VARS_UPDATED on VARS
 
 create table JOINT_VARS_SYSTEM
 (
-	ID					BIGINT not null PRIMARY KEY,
+	ID					BIGINT not null auto_increment PRIMARY KEY,
 	SYSTEMID			BIGINT,
 	VARSID				BIGINT,
 	THROUGHPUT_CODE		BIGINT not null default 0,
@@ -518,7 +538,7 @@ create unique index XPK_JV_THROUGHPUT on JV_THROUGHPUT
 
 create table JOINT_REQUIREMENT_SYSTEM
 (
-	ID					BIGINT not null PRIMARY KEY,
+	ID					BIGINT not null auto_increment PRIMARY KEY,
 	SYSTEMID			BIGINT,
 	REQUIREMENTID		BIGINT,
 	IMPORTANCE_CODE		BIGINT not null default 0,
@@ -590,7 +610,7 @@ create unique index XPK_JR_IMPORTANCE on JR_IMPORTANCE
 
 create table JOINT_VARS_ENTRY
 (
-	ID					BIGINT not null PRIMARY KEY,
+	ID					BIGINT not null auto_increment PRIMARY KEY,
 	ENTRYID				BIGINT,
 	VARSID				BIGINT,
 	THROUGHPUT_CODE		BIGINT not null default 0,
@@ -645,7 +665,7 @@ create index XFK_USER_JVE_UPDATED on JOINT_VARS_SYSTEM
 
 create table JOINT_REQUIREMENT_ENTRY
 (
-	ID					BIGINT not null PRIMARY KEY,
+	ID					BIGINT not null auto_increment PRIMARY KEY,
 	ENTRYID				BIGINT,
 	REQUIREMENTID		BIGINT,
 	VOTERID				BIGINT,
@@ -706,11 +726,12 @@ create index XFK_USER_JRE_UPDATED on JOINT_REQUIREMENT_ENTRY
 
 create table JOINT_USER_TEAM
 (
-	ID					BIGINT not null PRIMARY KEY,
+	ID					BIGINT not null auto_increment PRIMARY KEY,
 	USERID				BIGINT,
 	TEAMID				BIGINT,
 	OWNER				INT(1) not null default 0,
 	POSITION_CODE		BIGINT,
+	CURRENT				INT(1) not null default 0,
 	ACTIVE				INT(1) not null default 1,
 	CREATED_BY_USER_ID  BIGINT not null,
 	CREATED_DATE        timestamp default '0000-00-00 00:00:00',

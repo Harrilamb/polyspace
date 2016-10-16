@@ -27,6 +27,30 @@ $(document).ready(function(){
 			}
 		  });
 	});
+	$(".addTeam").click(function(){
+		if($("#teamNameSet").val().trim()!="" && $("#teamDescSet").val().trim()!=""){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'add_team',
+						name: $("#teamNameSet").val(),
+						description: $("#teamDescSet").val()
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					$("#addTeamSuccess").fadeIn("fast",function(){});
+					$("#teamNameSet").val("");
+					$("#teamDescSet").val("");
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the team was unable to be created.");
+				}
+			});
+		}else{
+			$("#addTeamFailed").fadeIn("fast",function(){});
+		}
+	});
 	$(".subutt").click(function(){
 			var name = $("#name").val().split(" ");
 			var fn = name[0];

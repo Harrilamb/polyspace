@@ -4,3 +4,14 @@ requirejs(["sidebae"], function(sidebae) {
     //util's dependencies have loaded, and the util argument will hold
     //the module value for "helper/util".
 });
+/*
+require.config({
+	baseUrl: '../js',
+	// ... config ...
+	paths: {
+		angular: '../bower_components/angular/angular'
+	}
+	// ... config ...
+});
+requirejs(['angular'],function (angular) {console.log(angular);});
+*/
