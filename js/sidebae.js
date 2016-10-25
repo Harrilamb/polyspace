@@ -1,8 +1,10 @@
 $(document).ready(function(){
-	//alert($("#usersname").text());
-	$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){
-	});
+	$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
 	$(".homehead h1").click(function(){window.location.href="../index.php";});
+	
+	$(".close").click(function(){
+		$(this).parent().fadeOut("fast",function(){});
+	});
 	$("#logout").click(function(){
 		$(document).load("../php/logout.php",function( response,status,xhr ){
 			if(response==1){
@@ -49,6 +51,116 @@ $(document).ready(function(){
 			});
 		}else{
 			$("#addTeamFailed").fadeIn("fast",function(){});
+		}
+	});
+	$(".addProject").click(function(){
+		if($("#projectTitleSet").val().trim()!="" && $("#projectDescSet").val().trim()!=""){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'add_project',
+						title: $("#projectTitleSet").val(),
+						description: $("#projectDescSet").val()
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					$("#addProjectSuccess").fadeIn("fast",function(){});
+					$("#projectTitleSet").val("");
+					$("#projectDescSet").val("");
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the team was unable to be created.");
+				}
+			});
+		}else{
+			$("#addProjectFailed").fadeIn("fast",function(){});
+		}
+	});
+	$(".addSystem").click(function(){
+		if($("#systemParentSet").val()!="none" && $("#systemTitleSet").val().trim()!="" && $("#systemDescSet").val().trim()!=""){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'add_system',
+						parent: $("#systemParentSet").val().trim(),
+						title: $("#systemTitleSet").val().trim(),
+						description: $("#systemDescSet").val().trim()
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					$("#addSystemSuccess").fadeIn("fast",function(){});
+					$("#systemParentSet").val("0");
+					$("#systemTitleSet").val("");
+					$("#systemDescSet").val("");
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the team was unable to be created.");
+				}
+			});
+		}else{
+			$("#addSystemFailed").fadeIn("fast",function(){});
+		}
+	});
+	$(".addRequirement").click(function(){
+		if($("#requirementNameSet").val().trim()!="" && $("#requirementDescSet").val().trim()!="" && $("#requirementPassFailSet").val().trim()!="" && $("#requirementSourceSet").val().trim()!="" && $("requirementTierSet").val()!="none"){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'add_requirement',
+						name: $("#requirementNameSet").val().trim(),
+						description: $("#requirementDescSet").val().trim(),
+						passfail: $("#requirementPassFailSet").val().trim(),
+						source: $("#requirementSourceSet").val().trim(),
+						tier: $("#requirementTierSet").val(),
+						dynamic: $("#requirementDynamicSet").is(":checked")?1:0
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					$("#addRequirementSuccess").fadeIn("fast",function(){});
+					$("#requirementNameSet").val("");
+					$("#requirementDescSet").val("");
+					$("#requirementPassFailSet").val("");
+					$("#requirementSourceSet").val("");
+					$("#requirementTierSet").val("none");
+					$("#requirementDynamicSet").prop("checked",true);
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the team was unable to be created.");
+				}
+			});
+		}else{
+			$("#addRequirementFailed").fadeIn("fast",function(){});
+		}
+	});
+	$(".addVariable").click(function(){
+		if($("#variableNameSet").val().trim()!="" && $("#variableDescSet").val().trim()!="" && $("#variableSymbolSet").val().trim()!="" && $("#variableUnitSet").val().trim()!=""){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'add_variable',
+						name: $("#variableNameSet").val().trim(),
+						description: $("#variableDescSet").val().trim(),
+						symbol: $("#variableSymbolSet").val().trim(),
+						units: $("#variableUnitSet").val().trim()
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					$("#addVariableSuccess").fadeIn("fast",function(){});
+					$("#variableNameSet").val("");
+					$("#variableDescSet").val("");
+					$("#variableSymbolSet").val("");
+					$("#variableUnitSet").val("");
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the team was unable to be created.");
+				}
+			});
+		}else{
+			$("#addVariableFailed").fadeIn("fast",function(){});
 		}
 	});
 	$(".subutt").click(function(){

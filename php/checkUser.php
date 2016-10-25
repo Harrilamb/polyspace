@@ -2,7 +2,7 @@
 $a=htmlspecialchars($_POST["code"]);
 
 include 'dbconnect.php';
-$conn=connectToServer();
+$conn=connectToMAMP();
 
 // Check connection
 if ($conn->connect_error) {

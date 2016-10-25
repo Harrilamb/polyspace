@@ -1,3 +1,10 @@
+/*Color Scheme
+gray:#C5C1C0
+black:#0A1612
+dark blue:#1A2930
+gold:#F7CE3E
+*/
+
 textarea{
 	resize:none;
 }
@@ -177,14 +184,24 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 	margin-top:10px;
 }
 
-#addTeamSuccess{
+.notifier{
 	display:none;
 }
 
-#addTeamFailed{
-	display:none;
-}
-
-.addTeam{
+.addTeam, .addProject{
 	margin-top:5px;
+}
+
+.currentEntity{
+	border-left:4px solid #F7CE3E;
+	padding-left:5px;
+}
+
+.otherEntity{
+	border-left:4px solid #C5C1C0;
+	padding-left:5px;
+}
+
+#requirementDynamic{
+	
 }

@@ -27,7 +27,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="container profileBody">
+	<div class="container profileBody" ng-app="userInfoApp" ng-controller="setTeams" >
 		<div class="row">
 			<div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
 				<h3>Profile</h3>
@@ -35,29 +35,93 @@
 					<li class="btn-link">Info</li>
 					<li class="btn-link">Team</li>
 					<li class="btn-link">Project</li>
+					<li class="btn-link">System</li>
+					<li class="btn-link">Requirement</li>
+					<li class="btn-link">Variable</li>
 				</ul>
 				<p><b>System Admin:</b> Harry Lambert</p>
 				<p>For Questions, Comments, and/or Suggestions:</p>
 				<p><b>Phone:</b> 510-421-4007</p>
 				<p><b>Email:</b> lambert.harrison@gmail.com</p>
 			</div>
-			<div ng-app="userInfoApp" ng-controller="setTeams" class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
+			<div id="userTeams" class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
 				<div class="admInfo" width="50%">
 					<div>
-						<h3>Current Team:</h3>
-						<div ng-repeat="team in thisTeam">
-							<div id="{{team.id}}">
-								<h3>{{team.name}}</h3>
-								<p>{{team.description}}</p>
-								<strong><p>{{team.owner}}</p></strong>
+						<div>
+							<h3>Current Team:</h3>
+							<div ng-repeat="team in thisTeam" class="currentEntity">
+								<div id="{{team.id}}">
+									<h3>{{team.name}}</h3>
+									<p>{{team.description}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
+								</div>
 							</div>
 						</div>
-						<h3>Other Teams:</h3>
-						
+						<div>
+							<h3>Other Teams:</h3>
+							<div>
+								<div ng-repeat="team in otherTeams" class="otherEntity">
+									<div id="{{team.id}}">
+										<h3>{{team.name}}</h3>
+										<p>{{team.description}}</p>
+										<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div>
+							<h3>Current Project:</h3>
+							<div ng-repeat="proj in currProj" class="currentEntity">
+								<div id="{{proj.id}}">
+									<h3>{{proj.title}}</h3>
+									<p>{{proj.description}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
+								</div>
+							</div>
+						</div>
+						<div>
+							<h3>Other Projects:</h3>
+							<div ng-repeat="proj in otherProjs" class="otherEntity">
+								<div id="{{proj.id}}">
+									<h3>{{proj.title}}</h3>
+									<p>{{proj.description}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
+								</div>
+							</div>
+						</div>
+						<div>
+							<h3>All Systems:</h3>
+							<div ng-repeat="system in allSystems" class="currentEntity">
+								<div id="{{system.id}}">
+									<h3>{{system.title}}</h3>
+									<p>{{system.description}}</p>
+								</div>
+							</div>
+						</div>
+						<div>
+							<h3>All Requirements:</h3>
+							<div ng-repeat="requirement in allRequirements" class="currentEntity">
+								<div id="{{requirement.id}}">
+									<h3>{{requirement.name}}</h3>
+									<p>{{requirement.description}}</p>
+								</div>
+							</div>
+						</div>
+						<div>
+							<h3>All Variables:</h3>
+							<div ng-repeat="variable in allVariables" class="currentEntity">
+								<div id="{{variable.id}}">
+									<h3>{{variable.name}}</h3>
+									<p>{{variable.description}}</p>
+									<p>{{variable.units}}</p>
+								</div>
+							</div>
+						</div>
+					
 					</div>
 				</div>				
 			</div>
-			<div ng-app="userInfoApp" ng-controller="setTeams" class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
+			<div class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
 				<div width="50%">
 					<h3>Add Team</h3>
 					<form>
@@ -68,22 +132,126 @@
 							<textarea id="teamDescSet" type="text" class="form-control" placeholder="Description"></textarea>
 						</div>
 					</form>
-					<div id="addTeamSuccess" class="alert alert-success">
-						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<div id="addTeamSuccess" class="alert alert-success notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
 						<strong>Success!</strong> New Team Added.
 					</div>
-					<div id="addTeamFailed" class="alert alert-danger">
-						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<div id="addTeamFailed" class="alert alert-danger notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
 						<strong>Missing Info</strong> Both Fields Required.
 					</div>
 					<button class="uibutton buttons addTeam">Add</button>
 				</div>
+				<div width="50%">
+					<h3>Add Project</h3>
+					<form>
+						<div class="form-group">
+							<label for="projectTitleSet">Title</label>
+							<input id="projectTitleSet" type="text" class="form-control" placeholder="Title"/>
+							<label for="projectDescSet">Description</label>
+							<textarea id="projectDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+						</div>
+					</form>
+					<div id="addProjectSuccess" class="alert alert-success notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Success!</strong> New Project Added.
+					</div>
+					<div id="addProjectFailed" class="alert alert-danger notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Missing Info</strong> Both Fields Required.
+					</div>
+					<button class="uibutton buttons addProject">Add</button>
+				</div>
+				<div width="50%">
+					<h3>Add System</h3>
+					<form>
+						<div class="form-group">
+							<label for="systemParentSet">Parent System</label>
+							<select id="systemParentSet" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
+								<option value="none" selected="selected">--Choose One--</option>
+								<option value="0">Ronin</option>
+							</select>
+							<label for="systemTitleSet">Title</label>
+							<input id="systemTitleSet" type="text" class="form-control" placeholder="Title"/>
+							<label for="systemDescSet">Description</label>
+							<textarea id="systemDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+						</div>
+					</form>
+					<div id="addSystemSuccess" class="alert alert-success notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Success!</strong> New System Added.
+					</div>
+					<div id="addSystemFailed" class="alert alert-danger notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Missing Info</strong> All Fields Required.
+					</div>
+					<button class="uibutton buttons addSystem">Add</button>
+				</div>
+				<div width="50%">
+					<h3>Add Requirement</h3>
+					<form>
+						<div class="form-group">
+							<label for="requirementNameSet">Name</label>
+							<input id="requirementNameSet" type="text" class="form-control" placeholder="Name"/>
+							<label for="requirementDescSet">Description</label>
+							<textarea id="requirementDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+							<label for="requirementPassFailSet">Pass/Fail Format:</label>
+							<input id="requirementPassFailSet" type="text" class="form-control" placeholder="i.e. altitude > 10km"/>
+							<label for="requirementSourceSet">Source:</label>
+							<input id="requirementSourceSet" type="text" class="form-control" placeholder="i.e. ROI, inferred, addendum #"/>
+							<label for="requirementTierSet">Tier of Importance:</label>
+							<select  id="requirementTierSet" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
+								<option value="none" selected="selected">Choose One</option>
+								<option value="0">Necessary</option>
+							</select>
+							<label for="requirementDynamicSet">Dynamic
+							<input id="requirementDynamicSet" type="checkbox" class="form-control" checked="checked"/>
+							</label>
+						</div>
+					</form>
+					<div id="addRequirementSuccess" class="alert alert-success notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Success!</strong> New Requirement Added.
+					</div>
+					<div id="addRequirementFailed" class="alert alert-danger notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Missing Info</strong> All Fields Required.
+					</div>
+					<button class="uibutton buttons addRequirement">Add</button>
+				</div>
+				<div width="50%">
+					<h3>Add Variable</h3>
+					<form>
+						<div class="form-group">
+							<label for="variableNameSet">Name</label>
+							<input id="variableNameSet" type="text" class="form-control" placeholder="Name"/>
+							<label for="variableDescSet">Description</label>
+							<textarea id="variableDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+							<label for="variableSymbolSet">Symbol:</label>
+							<input id="variableSymbolSet" type="text" class="form-control" placeholder="i.e. ∑, ∆, µ"/>
+							<label for="variableUnitSet">Units:</label>
+							<input id="variableUnitSet" type="text" class="form-control" placeholder="i.e. m/s, kg, N"/>
+						</div>
+					</form>
+					<div id="addVariableSuccess" class="alert alert-success notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Success!</strong> New Variable Added.
+					</div>
+					<div id="addVariableFailed" class="alert alert-danger notifier">
+						<a href="#" class="close" aria-label="close">&times;</a>
+						<strong>Missing Info</strong> All Fields Required.
+					</div>
+					<button class="uibutton buttons addVariable">Add</button>
+				</div>
 			</div>
-		</div>
+			<div class="col-xs-8 col-sm-8 col-md-10 col-lg-10 col-xs-offset-4 col-sm-offset-4 col-md-offset-2 col-lg-offset-2">
+				
+			</div>
+		</div>	
 	</div>
 	<script src="../bower_components/angular/angular.js"></script>
 	<script src="../js/app.js"></script>
-	<script src="../js/services/currTeam.js"></script>
+	<script src="../js/services/httpConns.js"></script>
 	<script src="../js/controllers/MainController.js"></script>
 </body>
 </html>

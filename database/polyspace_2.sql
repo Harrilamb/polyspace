@@ -31,6 +31,7 @@ create index XFK_USER_ORG_UPDATED on ORGANIZATION
 create table PROJECT
 (
    ID                   BIGINT not null auto_increment PRIMARY KEY,
+   OWNERID				BIGINT not null,
    TITLE                VARCHAR(40) not null,
    DESCRIPTION          VARCHAR(2000),
    PUBLIC               INT(1) not null default 1,
@@ -45,6 +46,14 @@ create table PROJECT
 create unique index XPK_PROJECT on PROJECT
 (
    ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_OWNER_PROJECT on PROJECT
+(
+   OWNERID
 );
 
 /*==============================================================*/
@@ -379,6 +388,8 @@ create index XFK_USER_CONTACT_UPDATED on ENTRY
 create table SYSTEM
 (
    ID                   BIGINT not null auto_increment PRIMARY KEY,
+   LFT 					INT not null,
+   RGT 					INT not null,
    PARENT_ID			BIGINT,
    PROJECT_ID           BIGINT,
    TITLE	            VARCHAR(60) not null,

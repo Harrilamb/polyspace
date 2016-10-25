@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	include 'dbconnect.php';
-	$conn=connectToServer();
+	$conn=connectToMAMP();
 	$me=$_SESSION["userid"];
 	$org=$_SESSION["orgid"];
 	
@@ -9,8 +9,47 @@
 		$teamName = htmlspecialchars($_POST["name"]);
 		$teamDesc = htmlspecialchars($_POST["description"]);
 		echo addTeam($teamName,$teamDesc);
-	}elseif($_GET["action"]=="find_current_team"){
-		echo findTeams();
+	}elseif($_POST["action"]=="add_project"){	
+		$projTitle = htmlspecialchars($_POST["title"]);
+		$projDesc = htmlspecialchars($_POST["description"]);
+		echo addProject($projTitle,$projDesc);
+	}elseif($_POST["action"]=="add_system"){
+		$systemParent = htmlspecialchars($_POST["parent"]);
+		$systemTitle = htmlspecialchars($_POST["title"]);
+		$systemDesc = htmlspecialchars($_POST["description"]);
+		echo addSystem($systemParent,$systemTitle,$systemDesc);
+	}elseif($_POST["action"]=="add_requirement"){
+		$reqName = htmlspecialchars($_POST["name"]);
+		$reqDesc = htmlspecialchars($_POST["description"]);
+		$reqPF = htmlspecialchars($_POST["passfail"]);
+		$reqSource = htmlspecialchars($_POST["source"]);
+		$reqTier = htmlspecialchars($_POST["tier"]);
+		$reqDyn = htmlspecialchars($_POST["dynamic"]);
+		echo addRequirement($reqName,$reqDesc,$reqPF,$reqSource,$reqTier,$reqDyn);
+	}elseif($_POST["action"]=="add_variable"){
+		$variableName = htmlspecialchars($_POST["name"]);
+		$variableDesc = htmlspecialchars($_POST["description"]);
+		$variableSymbol = htmlspecialchars($_POST["symbol"]);
+		$variableUnits = htmlspecialchars($_POST["units"]);
+		echo addVariable($variableName,$variableDesc,$variableSymbol,$variableUnits);
+	}elseif($_GET["action"]=="current_team"){
+		echo findTeams(1);
+	}elseif($_GET["action"]=="other_teams"){
+		echo findTeams(0);
+	}elseif($_GET["action"]=="current_project"){
+		echo findProjects(1);
+	}elseif($_GET["action"]=="other_projects"){
+		echo findProjects(0);
+	}elseif($_GET["action"]=="all_systems"){
+		echo findSystems();
+	}elseif($_GET["action"]=="all_requirements"){
+		echo findRequirements();
+	}elseif($_GET["action"]=="all_variables"){
+		echo findVariables();
+	}elseif($_GET["action"]=="exchange_requirements"){
+		echo exchangeReq();
+	}else{
+		echo "No Task Found";
 	}
 	
 	function addTeam($name,$desc){
@@ -35,12 +74,82 @@
 		}
 	}
 	
-	function findTeams(){
+	function addProject($title,$desc){
 		global $conn;
 		global $me;
 		global $org;
 		
-		$sql="SELECT t.id ti, t.name tn, t.description td, jut.userid ju,u.username uu,t.project_id tp FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.teamid IN (SELECT t.id FROM user u LEFT JOIN joint_user_team jut ON (jut.userid=u.id) LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.current=1 AND jut.userid=".$me.") AND jut.owner=1 AND t.org_id=".$org;
+		$sql="INSERT INTO project (TITLE,DESCRIPTION,OWNERID,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$me."',".$org.",".$me.",NULL)";
+		
+		$result = $conn->query($sql);
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function addSystem($parent,$title,$desc){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$ismaster=0;
+		if($parent==0){
+			$parent=NULL;
+			$ismaster=1;
+		}
+		
+		$sql="INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$parent."',(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$ismaster.",".$me.",NULL)";
+		
+		$result = $conn->query($sql);
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function addRequirement($name,$desc,$pf,$source,$toi,$dyn){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql="INSERT INTO requirement (NAME,DESCRIPTION,SOURCE,PF_FORMAT,TIER,DYNAMIC,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$source."','".$pf."',".$toi.",".$dyn.",(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
+		
+		$result = $conn->query($sql);
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function addVariable($name,$desc,$symb,$unit){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql="INSERT INTO vars (NAME,DESCRIPTION,SYMBOL,UNITS,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$symb."','".$unit."',(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
+		
+		$result = $conn->query($sql);
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function findTeams($current){
+		global $conn;
+		global $me;
+		global $org;
+		
+		if($current){
+			$sql="SELECT t.id ti, t.name tn, t.description td, jut.userid ju,u.username uu,t.project_id tp FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.teamid IN (SELECT t.id FROM user u LEFT JOIN joint_user_team jut ON (jut.userid=u.id) LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.current=1 AND jut.userid=".$me.") AND jut.owner=1 AND t.org_id=".$org." AND t.active=1";
+		}else{
+			$sql = "SELECT t.id ti, t.name tn, t.description td, jut.userid ju,u.username uu,t.project_id tp FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.teamid NOT IN (SELECT t.id FROM user u LEFT JOIN joint_user_team jut ON (jut.userid=u.id) LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.current=1 AND jut.userid=".$me.") AND jut.owner=1 AND t.org_id=".$org." AND t.active=1";
+		}
 		
 		$result=$conn->query($sql);
 		if($result){
@@ -56,12 +165,142 @@
 			}
 			$outp ='{"records":['.$outp.']}';
 			$conn->close();
-			
-			/*$arr = array();
-			while($row = $result->fetch_assoc()) {
-				array_push($arr,[id=>$row["ti"],name=>$row["tn"],description=>$row["td"],currProj=>$row["tp"],owner=>$row["uu"],ownerid=>$row["ju"]]);
-			}*/
+
 			echo $outp;
 		}
 	}
+	
+	function findProjects($current){
+		global $conn;
+		global $me;
+		global $org;
+		
+		if($current){
+			$sql="SELECT p.id pi, p.title pt, p.description pd, ow.username uu FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)";
+		}else{
+			$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND p.id NOT IN (SELECT t.project_id FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.userid=".$me." AND jut.current=1)";
+		}
+		
+		$result=$conn->query($sql);
+		if($result){
+			$outp = "";
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				if ($outp != "") {$outp .= ",";}
+				$outp .= '{"id":"'  . $rs["pi"] . '",';
+				$outp .= '"title":"'   . $rs["pt"]        . '",';
+				$outp .= '"description":"'   . $rs["pd"]        . '",';
+				$outp .= '"owner":"'   . $rs["uu"]        . '",';
+				$outp .= '"ownerid":"'. $rs["po"]     . '"}'; 
+			}
+			$outp ='{"records":['.$outp.']}';
+			$conn->close();
+
+			echo $outp;
+		}
+	}
+	
+	function findSystems(){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql = "SELECT s.id si, s.title st, s.description sd FROM system s LEFT JOIN project p ON (p.id=s.project_id) WHERE p.org_id=".$org;
+		
+		$result = $conn->query($sql);
+		if($result){
+			$outp = "";
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				if ($outp != "") {$outp .= ",";}
+				$outp .= '{"id":"'  . $rs["si"] . '",';
+				$outp .= '"title":"'   . $rs["st"]        . '",';
+				$outp .= '"description":"'. $rs["sd"]     . '"}'; 
+			}
+			$outp ='{"records":['.$outp.']}';
+			$conn->close();
+
+			echo $outp;
+		}
+	}
+	
+	function findRequirements(){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
+		
+		$result = $conn->query($sql);
+		if($result){
+			$outp = "";
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				if ($outp != "") {$outp .= ",";}
+				$outp .= '{"id":"'  . $rs["ri"] . '",';
+				$outp .= '"name":"'   . $rs["rn"]        . '",';
+				$outp .= '"description":"'. $rs["rd"]     . '"}'; 
+			}
+			$outp ='{"records":['.$outp.']}';
+			$conn->close();
+
+			echo $outp;
+		}
+	}
+	
+	function findVariables(){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vsymb, v.units vu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) WHERE v.active=1 AND p.org_id=".$org;
+		
+		$result = $conn->query($sql);
+		if($result){
+			$outp = "";
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				if ($outp != "") {$outp .= ",";}
+				$outp .= '{"id":"'  . $rs["vi"] . '",';
+				$outp .= '"name":"'   .   $rs["vn"]     . '",';
+				$outp .= '"units":"'   .   $rs["vu"]     . '",';
+				$outp .= '"description":"'. $rs["vd"]     . '"}'; 
+			}
+			$outp ='{"records":['.$outp.']}';
+			$conn->close();
+
+			echo $outp;
+		}
+	}
+	
+	/*function exchangeReq(){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sqlOpen = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
+		$sqlUsed = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
+		
+		$resultOpen = $conn->query($sqlOpen);
+		$resultUsed = $conn->query($sqlUsed);
+		
+		$out1=""
+		if($resultOpen){
+			while($rs=$resultOpen->fetch_array(MYSQLI_ASSOC)) {
+				if ($out1 != "") { $out1 .= ",";}
+				$out1 .='{"id":"' . $rs["ri"] . '",';
+				$out1 .= '"name":"'   .   $rs["rn"]     . '",';
+				$out1 .= '"description":"'. $rs["rd"]     . '"}'; 
+			}
+		}
+		$out2=""
+		if($resultUsed){
+			while($rs=$resultUsed->fetch_array(MYSQLI_ASSOC)) {
+				if ($out1 != "") { $out1 .= ",";}
+				$out2 .='{"id":"' . $rs["ri"] . '",';
+				$out2 .= '"name":"'   .   $rs["rn"]     . '",';
+				$out2 .= '"description":"'. $rs["rd"]     . '"}'; 
+			}
+		}
+		$outp = '{"unusedReq":['.$out1.'],"usedReq":['.$out2.']}';
+		$conn->close();
+		
+		echo $outp;
+	}*/
 ?>

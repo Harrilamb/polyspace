@@ -1,5 +1,5 @@
 <?php
-	function connectToServer(){
+	function connectToMAMP(){
 		$servername = "localhost";
 		$username = "cosmicadmin";
 		//$username = "harrison_astrnot";
@@ -18,4 +18,5 @@
 
 		return $conn;
 	};
+	
 ?>
