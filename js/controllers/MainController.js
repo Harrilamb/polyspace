@@ -1,6 +1,5 @@
 angular.module('userInfoApp.controllers',[]).
 controller('setTeams',['$scope','currTeam','otherTeams','currProj','otherProjs','allSystems','allRequirements', 'allVariables', function($scope, currTeam, otherTeams, currProj, otherProjs, allSystems, allRequirements, allVariables){
-	
 	currTeam.success(function(data){
 		$scope.thisTeam = data.records;
 	});

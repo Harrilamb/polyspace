@@ -4,7 +4,13 @@
 	include 'utilities.php';
 	$conn=connectToMAMP();
 	mysql_set_charset("utf8");
-	$me=$_SESSION["userid"];
+	if($_GET["glimpse"]){
+		$me=$_GET["glimpse"];
+		$actualUser=FALSE;
+	}else{
+		$me=$_SESSION["userid"];
+		$actualUser=TRUE;
+	}
 	$org=$_SESSION["orgid"];
 	
 	if($_POST["action"]=="add_team"){
@@ -206,7 +212,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT s.id si, s.title st, s.description sd FROM system s LEFT JOIN project p ON (p.id=s.project_id) WHERE p.org_id=".$org;
+		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE p.org_id=".$org;
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -215,6 +221,7 @@
 				if ($outp != "") {$outp .= ",";}
 				$outp .= '{"id":"'  . $rs["si"] . '",';
 				$outp .= '"title":"'   . $rs["st"]        . '",';
+				$outp .= '"owner":"'   . $rs["uu"]        . '",';
 				$outp .= '"description":"'. $rs["sd"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
@@ -229,7 +236,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
+		$sql = "SELECT r.id ri, r.name rn, r.description rd, u.username uu FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) LEFT JOIN user u ON (u.id=r.created_by_user_id) WHERE r.active=1 AND p.org_id=".$org;
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -238,6 +245,7 @@
 				if ($outp != "") {$outp .= ",";}
 				$outp .= '{"id":"'  . $rs["ri"] . '",';
 				$outp .= '"name":"'   . $rs["rn"]        . '",';
+				$outp .= '"owner":"'   . $rs["uu"]        . '",';
 				$outp .= '"description":"'. $rs["rd"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
@@ -252,7 +260,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) WHERE v.active=1 AND p.org_id=".$org;
+		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org;
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -262,7 +270,8 @@
 				$outp .= '{"id":"'  . $rs["vi"] . '",';
 				$outp .= '"name":"'   .   $rs["vn"]     . '",';
 				$vsymb = cleanString($rs["vs"]);
-				$outp .= '"units":"'   .   htmlspecialchars($vsymb)     . '",';
+				$outp .= '"symbol":"'   .   htmlspecialchars($vsymb)     . '",';
+				$outp .= '"owner":"'   .   $rs["uu"]     . '",';
 				$outp .= '"description":"'. $rs["vd"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';

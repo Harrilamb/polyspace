@@ -1,0 +1,8 @@
+.interact{
+	display:none;
+}
+.entity{
+	&:hover .interact{
+		display:block;
+	}
+}

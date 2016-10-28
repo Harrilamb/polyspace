@@ -13,6 +13,7 @@
 	<script data-main="../js/main.js" src="../js/require.js"></script>
 	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.min.css">
 	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="../css/sidebae.css">
 	<link rel="stylesheet" href="../css/main.css">
@@ -31,15 +32,15 @@
 		<div class="row">
 			<div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
 				<h3>Profile</h3>
+				<strong><p>Build a Spaceship</p></strong>
 				<ul class="infoList">
-					<li class="btn-link">Info</li>
-					<li class="btn-link">Team</li>
-					<li class="btn-link">Project</li>
-					<li class="btn-link">System</li>
-					<li class="btn-link">Requirement</li>
-					<li class="btn-link">Variable</li>
+					<li class="btn-link switchop">Team</li>
+					<li class="btn-link switchop">Project</li>
+					<li class="btn-link switchop">System</li>
+					<li class="btn-link switchop">Requirement</li>
+					<li class="btn-link switchop">Variable</li>
 				</ul>
-				<p><b>System Admin:</b> Harry Lambert</p>
+				<p><b>SysAdmin:</b> Harry Lambert</p>
 				<p>For Questions, Comments, and/or Suggestions:</p>
 				<p><b>Phone:</b> 510-421-4007</p>
 				<p><b>Email:</b> lambert.harrison@gmail.com</p>
@@ -47,73 +48,79 @@
 			<div id="userTeams" class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
 				<div class="admInfo" width="50%">
 					<div>
-						<div>
+						<div class="op teamop currop">
 							<h3>Current Team:</h3>
-							<div ng-repeat="team in thisTeam" class="currentEntity">
+							<div ng-repeat="team in thisTeam" class="entity currentEntity">
 								<div id="{{team.id}}">
-									<h3>{{team.name}}</h3>
+									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op teamop currop">
 							<h3>Other Teams:</h3>
 							<div>
-								<div ng-repeat="team in otherTeams" class="otherEntity">
+								<div ng-repeat="team in otherTeams" class="entity otherEntity">
 									<div id="{{team.id}}">
-										<h3>{{team.name}}</h3>
+										<h4>{{team.name}}</h4>
 										<p>{{team.description}}</p>
 										<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op projop">
 							<h3>Current Project:</h3>
-							<div ng-repeat="proj in currProj" class="currentEntity">
+							<div ng-repeat="proj in currProj" class="entity currentEntity">
 								<div id="{{proj.id}}">
-									<h3>{{proj.title}}</h3>
+									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op projop">
 							<h3>Other Projects:</h3>
-							<div ng-repeat="proj in otherProjs" class="otherEntity">
+							<div ng-repeat="proj in otherProjs" class="entity otherEntity">
 								<div id="{{proj.id}}">
-									<h3>{{proj.title}}</h3>
+									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op sysop">
 							<h3>All Systems:</h3>
-							<div ng-repeat="system in allSystems" class="currentEntity">
+							<div ng-repeat="system in allSystems" class="entity currentEntity">
 								<div id="{{system.id}}">
-									<h3>{{system.title}}</h3>
+									<div class="interact">
+										<i class="fa fa-rocket"></i>
+										<i class="fa fa-close"></i>
+									</div>
+									<h4>{{system.title}}</h4>
 									<p>{{system.description}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{system.ownerid}}">{{system.owner}}</a>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op reqop">
 							<h3>All Requirements:</h3>
-							<div ng-repeat="requirement in allRequirements" class="currentEntity">
+							<div ng-repeat="requirement in allRequirements" class="entity currentEntity">
 								<div id="{{requirement.id}}">
-									<h3>{{requirement.name}}</h3>
+									<h4>{{requirement.name}}</h4>
 									<p>{{requirement.description}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{requirement.ownerid}}">{{requirement.owner}}</a>
 								</div>
 							</div>
 						</div>
-						<div>
+						<div class="op varop">
 							<h3>All Variables:</h3>
-							<div ng-repeat="variable in allVariables" class="currentEntity">
+							<div ng-repeat="variable in allVariables" class="entity currentEntity">
 								<div id="{{variable.id}}">
-									<h3>{{variable.name}}</h3>
+									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>
 									<p>{{variable.description}}</p>
-									<p>{{variable.units}}</p>
+									<a class="btn-link" href="profile.php?glimpse={{variable.ownerid}}">{{variable.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -122,7 +129,7 @@
 				</div>				
 			</div>
 			<div class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
-				<div width="50%">
+				<div class="op teamop currop" width="50%">
 					<h3>Add Team</h3>
 					<form>
 						<div class="form-group">
@@ -142,7 +149,7 @@
 					</div>
 					<button class="uibutton buttons addTeam">Add</button>
 				</div>
-				<div width="50%">
+				<div class="op projop" width="50%">
 					<h3>Add Project</h3>
 					<form>
 						<div class="form-group">
@@ -162,7 +169,7 @@
 					</div>
 					<button class="uibutton buttons addProject">Add</button>
 				</div>
-				<div width="50%">
+				<div class="op sysop" width="50%">
 					<h3>Add System</h3>
 					<form>
 						<div class="form-group">
@@ -187,7 +194,7 @@
 					</div>
 					<button class="uibutton buttons addSystem">Add</button>
 				</div>
-				<div width="50%">
+				<div class="op reqop" width="50%">
 					<h3>Add Requirement</h3>
 					<form>
 						<div class="form-group">
@@ -219,7 +226,7 @@
 					</div>
 					<button class="uibutton buttons addRequirement">Add</button>
 				</div>
-				<div width="50%">
+				<div class="op varop" width="50%">
 					<h3>Add Variable</h3>
 					<form>
 						<div class="form-group">

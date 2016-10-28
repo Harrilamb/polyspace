@@ -191,4 +191,29 @@ $(document).ready(function(){
 			$(".driveList").slideDown("fast",function(){});
 		}
 	});
+	$(".switchop").click(function(){
+		$(".currop").removeClass("currop");
+		switch($(this).text()){
+			case 'Team':
+				$(".teamop").addClass("currop");
+			break;
+			case 'Project':
+				$(".projop").addClass("currop");
+			break;
+			case 'System':
+				$(".sysop").addClass("currop");
+			break;
+			case 'Requirement':
+				$(".reqop").addClass("currop");
+			break;
+			case 'Variable':
+				$(".varop").addClass("currop");
+			break;
+			default:
+				$(".op").addClass("currop");
+		}
+	});
+	$(".fa-rocket").click(function(){
+		$(this).parents().eq(1).attr("id");
+	});
 });

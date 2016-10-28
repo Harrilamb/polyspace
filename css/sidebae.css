@@ -206,6 +206,22 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 	
 }
 
-[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-  display: none !important;
+.infoList{
+	padding-left:25px;
+}
+
+.op{
+	display:none;
+}
+
+.symbName{
+	font-weight:normal;
+}
+
+.interact{
+	float:right;
+}
+
+.currop{
+	display:block;
 }

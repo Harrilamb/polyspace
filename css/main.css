@@ -1,0 +1,7 @@
+.interact {
+  display: none; }
+
+.entity:hover .interact {
+  display: block; }
+
+/*# sourceMappingURL=main.css.map */
