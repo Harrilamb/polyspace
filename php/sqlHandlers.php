@@ -1,7 +1,9 @@
 <?php
 	session_start();
 	include 'dbconnect.php';
+	include 'utilities.php';
 	$conn=connectToMAMP();
+	mysql_set_charset("utf8");
 	$me=$_SESSION["userid"];
 	$org=$_SESSION["orgid"];
 	
@@ -250,7 +252,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vsymb, v.units vu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) WHERE v.active=1 AND p.org_id=".$org;
+		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) WHERE v.active=1 AND p.org_id=".$org;
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -259,7 +261,8 @@
 				if ($outp != "") {$outp .= ",";}
 				$outp .= '{"id":"'  . $rs["vi"] . '",';
 				$outp .= '"name":"'   .   $rs["vn"]     . '",';
-				$outp .= '"units":"'   .   $rs["vu"]     . '",';
+				$vsymb = cleanString($rs["vs"]);
+				$outp .= '"units":"'   .   htmlspecialchars($vsymb)     . '",';
 				$outp .= '"description":"'. $rs["vd"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';

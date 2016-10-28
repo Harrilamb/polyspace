@@ -205,3 +205,7 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 #requirementDynamic{
 	
 }
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
