@@ -40,6 +40,9 @@
 		$variableSymbol = htmlspecialchars($_POST["symbol"]);
 		$variableUnits = htmlspecialchars($_POST["units"]);
 		echo addVariable($variableName,$variableDesc,$variableSymbol,$variableUnits);
+	}elseif($_POST["action"]=="find_reqs"){
+		$sysid = $_POST["sysid"];
+		echo findReqs($sysid);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -278,6 +281,32 @@
 			$conn->close();
 
 			echo $outp;
+		}
+	}
+	
+	function findReqs($sysid){
+		global $conn;
+		global $me;
+		global $org;
+		$sql = "SELECT r.id ri, r.name rn, r.description rd, IF(r.id IN (SELECT jrs.requirementid FROM joint_requirement_system jrs WHERE jrs.active=1 AND jrs.systemid=".$sysid."),true,false) linked FROM requirement r WHERE r.active=1";
+		
+		$result = $conn->query($sql);
+		if($result){
+			$outp=array();
+			$i=0;
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) { 
+				$outp[$i] = array("id" => $rs["ri"],"name" => $rs["rn"],"description" => $rs["rd"],"linked" => $rs["linked"]);
+				$i++;
+			}
+			$outFinal =array("records"=>$outp);
+			$conn->close();
+
+			echo json_encode($outFinal);
+		}else{
+			$outFinal =array();
+			$conn->close();
+
+			echo json_encode($outFinal);
 		}
 	}
 	

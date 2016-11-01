@@ -13,9 +13,6 @@
 	<script data-main="../js/main.js" src="../js/require.js"></script>
 	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.min.css">
-	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
-	<link rel="stylesheet" href="../css/sidebae.css">
 	<link rel="stylesheet" href="../css/main.css">
 </head>
 
@@ -30,6 +27,7 @@
 	</div>
 	<div class="container profileBody" ng-app="userInfoApp" ng-controller="setTeams" >
 		<div class="row">
+			<!--Start left column-->
 			<div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
 				<h3>Profile</h3>
 				<strong><p>Build a Spaceship</p></strong>
@@ -44,7 +42,9 @@
 				<p>For Questions, Comments, and/or Suggestions:</p>
 				<p><b>Phone:</b> 510-421-4007</p>
 				<p><b>Email:</b> lambert.harrison@gmail.com</p>
+			<!--End left column-->
 			</div>
+			<!--Start middle column-->
 			<div id="userTeams" class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
 				<div class="admInfo" width="50%">
 					<div>
@@ -54,7 +54,7 @@
 								<div id="{{team.id}}">
 									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -65,7 +65,7 @@
 									<div id="{{team.id}}">
 										<h4>{{team.name}}</h4>
 										<p>{{team.description}}</p>
-										<a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a>
+										<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
 									</div>
 								</div>
 							</div>
@@ -76,7 +76,7 @@
 								<div id="{{proj.id}}">
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -86,7 +86,7 @@
 								<div id="{{proj.id}}">
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -96,11 +96,11 @@
 								<div id="{{system.id}}">
 									<div class="interact">
 										<i class="fa fa-rocket"></i>
-										<i class="fa fa-close"></i>
+										<i class="fa fa-trash"></i>
 									</div>
 									<h4>{{system.title}}</h4>
 									<p>{{system.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{system.ownerid}}">{{system.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{system.owner}}">{{system.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -110,7 +110,7 @@
 								<div id="{{requirement.id}}">
 									<h4>{{requirement.name}}</h4>
 									<p>{{requirement.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{requirement.ownerid}}">{{requirement.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{requirement.owner}}">{{requirement.owner}}</a>
 								</div>
 							</div>
 						</div>
@@ -120,14 +120,16 @@
 								<div id="{{variable.id}}">
 									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>
 									<p>{{variable.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{variable.ownerid}}">{{variable.owner}}</a>
+									<a class="btn-link" href="profile.php?glimpse={{variable.owner}}">{{variable.owner}}</a>
 								</div>
 							</div>
 						</div>
 					
 					</div>
-				</div>				
+				</div>	
+			<!--End middle column-->
 			</div>
+			<!--Start right column-->
 			<div class="col-xs-4 col-sm-4 col-md-5 col-lg-5">
 				<div class="op teamop currop" width="50%">
 					<h3>Add Team</h3>
@@ -250,9 +252,23 @@
 					</div>
 					<button class="uibutton buttons addVariable">Add</button>
 				</div>
+				<div>
+					<h3>Requirements</h3>
+					<table>
+						<thead>
+							<tr><th>Unlinked</th><th>Linked</th></tr>
+							<tr>
+								<td id="unlinkedList"></td>
+								<td id="linkedList"></td>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			<!--End right column-->
 			</div>
-			<div class="col-xs-8 col-sm-8 col-md-10 col-lg-10 col-xs-offset-4 col-sm-offset-4 col-md-offset-2 col-lg-offset-2">
-				
+			<!--Start bottom span-->
+			<div class="col-xs-8 col-sm-8 col-md-10 col-lg-10 col-xs-offset-4 col-sm-offset-4 col-md-offset-2 col-lg-offset-2" style="background:orange;">
+			<!--End bottom span-->
 			</div>
 		</div>	
 	</div>

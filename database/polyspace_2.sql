@@ -270,7 +270,7 @@ create index XFK_USER_ENTRY_UPDATED on ENTRY
 );
 
 /*==============================================================*/
-/* Table: USER_TYPE                                             */
+/* Table: ENTRY_STATUS                                          */
 /*==============================================================*/
 create table ENTRY_STATUS
 (
@@ -282,7 +282,7 @@ create table ENTRY_STATUS
 alter table ENTRY_STATUS comment 'Used to identify progress of entry in approval process';
 
 /*==============================================================*/
-/* Index: XPK_USER_TYPE                                         */
+/* Index: XPK_ENTRY_STATUS                                      */
 /*==============================================================*/
 create unique index XPK_ENTRY_STATUS on ENTRY_STATUS
 (
@@ -554,6 +554,7 @@ create table JOINT_REQUIREMENT_SYSTEM
 	REQUIREMENTID		BIGINT,
 	IMPORTANCE_CODE		BIGINT not null default 0,
 	ACTIVE				INT(1) not null default 1,
+	REMOVAL_REASON		VARCHAR(1000),
 	CREATED_BY_USER_ID  BIGINT not null,
 	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
 	UPDATED_BY_USER_ID  BIGINT not null,
