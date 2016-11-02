@@ -9,8 +9,8 @@ require.config({
 	baseUrl: '../js',
 	// ... config ...
 	paths: {
-		chocolat: '../bower_components/chocolat/src/js/jquery.chocolat'
+		colorbox: '../bower_components/jquery-colorbox/jquery.colorbox-min'
 	}
 	// ... config ...
 });
-requirejs(['chocolat'],function (chocolat) {});
+requirejs(['colorbox'],function (colorbox) {});

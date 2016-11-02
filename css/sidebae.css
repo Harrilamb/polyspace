@@ -226,3 +226,7 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 .currop{
 	display:block;
 }
+
+.sysReqSelect,.entryVarSelect{
+	background-color:#FFFF00;
+}

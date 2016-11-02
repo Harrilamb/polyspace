@@ -1,36 +1,110 @@
 $(document).ready(function(){
-	var requirements = {
-		"records":undefined,
+	var systemBuilder = {
+		"system":undefined,
+		"requirements":undefined,
 		"dataUpdate":function(sysid){
 			$.ajax({
 				method:"POST",
 				url: "../php/sqlHandlers.php",
 				data: { action: 'find_reqs',
-						sysid:sysid
+						sysid:systemBuilder.system
 				}
 			})
 			.done(function( msg ) {
 				if(msg){
-					requirements.records=JSON.parse(msg).records;
-					requirements.DOMUpdate();
+					systemBuilder.requirements=JSON.parse(msg).records;
+					systemBuilder.DOMUpdate();
 				}else{
-					alert("Sorry something went wrong.");
 					console.log(JSON.parse(msg));
+					alert("Sorry something went wrong.");
 				};
 			});
 		},
 		"DOMUpdate":function(){
-			for(var req in requirements.records){
-				/*var block = document.createElement("div");
-				var name = document.createElement("h4");
-				var desc = document.createElement("p");
-				var owner = document.createElement("a");
-				owner.append("<p>"+requirements.records[req].linked+"</p>");*/
-				console.log(requirements.records[req].linked);	
+			if($("#linkedList").children().length>0){
+				$("#linkedList").empty();
+			}
+			if($("#unlinkedList").children().length>0){
+				$("#unlinkedList").empty();
+			}
+			for(var req in systemBuilder.requirements){
+				var thisReq = systemBuilder.requirements[req];
+				var thing = $("<div id='req"+thisReq.id+"' class='sysReq'><h4>"+thisReq.name+"</h4><p>"+thisReq.description+"</p></div>");
+				if(systemBuilder.requirements[req].linked==1){
+					thing.appendTo("#linkedList");	
+				}else{
+					thing.appendTo("#unlinkedList");
+				}
 			};
-		}
+			$(".sysReq").click(function(){
+				$(this).toggleClass("sysReqSelect",function(){});
+			});
+		},
+		"changeReqLinkage":function(req,connect){
+			if(connect==1){
+				var act = "link_requirements";
+			}else{
+				var act = "unlink_requirements";
+			}
+			$.ajax({
+				method:"POST",
+				url: "../php/sqlHandlers.php",
+				data:{	action: act,
+						sysid: systemBuilder.system,
+						reqids: req
+				}
+			})
+			.done(function( msg ) {
+				if(msg==1){
+					systemBuilder.dataUpdate();
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the requirement was unable to be linked to the system.");
+				}
+			});
+		},
 	};
 	
+	var entryBuilder = {
+		"entry":undefined,
+		"systems":undefined,
+		"systemid":undefined,
+		"inputVars":"(0)",
+		"outputVars":undefined,
+		"loadSystems":function(){
+			$.ajax({
+				method:"POST",
+				url: "../php/sqlHandlers.php?action=all_systems"
+			})
+			.done(function( msg ) {
+				if(msg){
+					entryBuilder.systems = JSON.parse(msg).records;
+					entryBuilder.updateDropdown();
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the requirement was unable to be linked to the system.");
+				}
+			});
+		},
+		"updateDropdown":function(){
+			var ebs = entryBuilder.systems;
+			var options = "<option val='0'>--Choose-One--</option>";
+			for(var i in ebs){
+				options += "<option val='"+ebs[i].id+"'>"+ebs[i].title+"</option>";
+			}
+			$("#entrySysSelect").append(options);
+		},
+		"updateVars":function(){
+			
+		}
+	}
+	
+	var getNum = function(string){
+		var num = string.replace( /^\D+/g, '');
+		return num;
+	};
+	
+	entryBuilder.loadSystems();
 	$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
 	$(".homehead h1").click(function(){window.location.href="../index.php";});
 	
@@ -111,7 +185,7 @@ $(document).ready(function(){
 					$("#projectDescSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the team was unable to be created.");
+					alert("Something didn't go right, the project was unable to be created.");
 				}
 			});
 		}else{
@@ -139,7 +213,7 @@ $(document).ready(function(){
 					$("#systemDescSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the team was unable to be created.");
+					alert("Something didn't go right, the system was unable to be created.");
 				}
 			});
 		}else{
@@ -173,7 +247,7 @@ $(document).ready(function(){
 					$("#requirementDynamicSet").prop("checked",true);
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the team was unable to be created.");
+					alert("Something didn't go right, the requirement was unable to be created.");
 				}
 			});
 		}else{
@@ -203,7 +277,7 @@ $(document).ready(function(){
 					$("#variableUnitSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the team was unable to be created.");
+					alert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}else{
@@ -262,6 +336,9 @@ $(document).ready(function(){
 			case 'Variable':
 				$(".varop").addClass("currop");
 			break;
+			case 'Entry':
+				$(".entryop").addClass("currop");
+			break;
 			default:
 				$(".op").addClass("currop");
 		}
@@ -270,11 +347,71 @@ $(document).ready(function(){
 //Switch to system definition tool
 	$(".fa-rocket").click(function(){
 		var sysid = $(this).parents().eq(1).attr("id");
-		requirements.dataUpdate(sysid);
+		systemBuilder.system = sysid;
+		systemBuilder.dataUpdate();
+		$(".currop").removeClass("currop");
+		$(".sysReqOp,.sysList").addClass("currop");
 	});
 	
 //Handle deletion of an entity
 	$(".fa-trash").click(function(){
 		var userid = $(this).parents().eq(1).attr("id");
+	});
+		
+//Handle the linkage of a requirement to a system
+	$("#linkReqs").click(function(){
+		var i = 0;
+		var reqList = [];
+		$("#unlinkedList .sysReqSelect").each(function(){
+			reqList[i]=parseInt(getNum($(this).attr("id")));
+			i++;
+		});
+		if(reqList.length>0){
+			systemBuilder.changeReqLinkage(reqList,1);
+		}else{
+			alert("You must select at least one requirement to transfer.");
+		}
+	});
+	
+//Handle the unlinkage of a requirement from a system
+	$("#unlinkReqs").click(function(){
+		var i = 0;
+		var reqList = [];
+		$("#linkedList .sysReqSelect").each(function(){
+			reqList[i]=parseInt(getNum($(this).attr("id")));
+			i++;
+		});
+		if(reqList.length>0){
+			systemBuilder.changeReqLinkage(reqList,0);
+		}else{
+			alert("You must select at least one requirement to transfer.");
+		}
+	});	
+	$("#testy").click(function(){
+		$.colorbox({html:"<h1>Welcome Harry</h1>",trapFocus:true,overlayClose:false});
+	});
+	
+	$("#inputVarsAdd").click(function(){
+		$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'unlinked_variables',
+					notin:entryBuilder.inputVars
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+					$.colorbox({html:msg});
+					$(".unlinkedVariables").click(function(){
+						$(this).toggleClass("entryVarSelect",function(){});
+					});
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+	});
+	$("#outputVarsAdd").click(function(){
+		
 	});
 });

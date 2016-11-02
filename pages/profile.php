@@ -29,7 +29,7 @@
 		<div class="row">
 			<!--Start left column-->
 			<div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-				<h3>Profile</h3>
+				<h3 id="testy">Profile</h3>
 				<strong><p>Build a Spaceship</p></strong>
 				<ul class="infoList">
 					<li class="btn-link switchop">Team</li>
@@ -37,6 +37,7 @@
 					<li class="btn-link switchop">System</li>
 					<li class="btn-link switchop">Requirement</li>
 					<li class="btn-link switchop">Variable</li>
+					<li class="btn-link switchop">Entry</li>
 				</ul>
 				<p><b>SysAdmin:</b> Harry Lambert</p>
 				<p>For Questions, Comments, and/or Suggestions:</p>
@@ -90,7 +91,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="op sysop">
+						<div class="op sysop sysList">
 							<h3>All Systems:</h3>
 							<div ng-repeat="system in allSystems" class="entity currentEntity">
 								<div id="{{system.id}}">
@@ -127,6 +128,53 @@
 					
 					</div>
 				</div>	
+				<div class="op entryop">
+					<form>
+						<h3>Welcome Harry</h3>
+						<div class="form-group">
+							<h4>Step 1 of 3</h4>
+							<label for="entrySysSelect"/>
+							<select id="entrySysSelect" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
+							</select>
+						</div>
+						<div class="form-group">
+							<h4>Step 2 of 3</h4>
+							<label for="teamNameSet">Name</label>
+							<input id="teamNameSet" type="text" class="form-control" placeholder="Name"/>
+							<label for="teamDescSet">Description</label>
+							<textarea id="teamDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+							<h5>Variables</h5>
+							<table id="entryVarTable">
+								<thead>
+									<tr><th>Inputs</th><th>Outputs</th></tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td id="inputList"></td>
+										<td id="outputList"></td>
+									</tr>
+									<tr>
+										<td><button id="inputVarsAdd" class="uibutton buttons inputAddBtn">Add</button></td>
+										<td><button id="outputVarsAdd" class="uibutton buttons outputAddBtn">Add</button></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="form-group">
+							<h4>Step 3 of 3</h4>
+							<div>
+								<h5>Stage Entry</h5>
+								<p>Put it to the test!</p>
+								<button class="uibutton buttons">Stage</button>
+							</div>
+							<div>
+								<h5>Stash Entry</h5>
+								<p>Just making it now.</p>
+								<button class="uibutton buttons">Stash</button>
+							</div>
+						</div>
+					</form>
+				</div>
 			<!--End middle column-->
 			</div>
 			<!--Start right column-->
@@ -252,22 +300,28 @@
 					</div>
 					<button class="uibutton buttons addVariable">Add</button>
 				</div>
-				<div>
+				<div class="op sysReqOp">
 					<h3>Requirements</h3>
-					<table>
+					<table id="reqLinkageTable">
 						<thead>
 							<tr><th>Unlinked</th><th>Linked</th></tr>
+						</thead>
+						<tbody>
 							<tr>
 								<td id="unlinkedList"></td>
 								<td id="linkedList"></td>
 							</tr>
-						</thead>
+							<tr>
+								<td><button id="linkReqs" class="uibutton buttons linkBtn">Link</button></td>
+								<td><button id="unlinkReqs" class="uibutton buttons unlinkBtn">Unlink</button></td>
+							</tr>
+						</tbody>
 					</table>
 				</div>
 			<!--End right column-->
 			</div>
 			<!--Start bottom span-->
-			<div class="col-xs-8 col-sm-8 col-md-10 col-lg-10 col-xs-offset-4 col-sm-offset-4 col-md-offset-2 col-lg-offset-2" style="background:orange;">
+			<div class="col-xs-8 col-sm-8 col-md-10 col-lg-10 col-xs-offset-4 col-sm-offset-4 col-md-offset-2 col-lg-offset-2">
 			<!--End bottom span-->
 			</div>
 		</div>	

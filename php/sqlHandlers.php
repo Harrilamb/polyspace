@@ -43,6 +43,16 @@
 	}elseif($_POST["action"]=="find_reqs"){
 		$sysid = $_POST["sysid"];
 		echo findReqs($sysid);
+	}elseif($_POST["action"]=="link_requirements"){
+		$sysid = $_POST["sysid"];
+		$reqids = $_POST["reqids"];
+		echo sysReqLinkage($sysid,$reqids,1);
+	}elseif($_POST["action"]=="unlink_requirements"){
+		$sysid = $_POST["sysid"];
+		$reqids = $_POST["reqids"];
+		echo sysReqLinkage($sysid,$reqids,0);
+	}elseif($_POST["action"]=="unlinked_variables"){
+		echo findVariables($_POST["notin"],true);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -57,8 +67,6 @@
 		echo findRequirements();
 	}elseif($_GET["action"]=="all_variables"){
 		echo findVariables();
-	}elseif($_GET["action"]=="exchange_requirements"){
-		echo exchangeReq();
 	}else{
 		echo "No Task Found";
 	}
@@ -215,7 +223,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE p.org_id=".$org;
+		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1))";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -258,15 +266,16 @@
 		}
 	}
 	
-	function findVariables(){
+	function findVariables($notin="(0)",$htmlified=false){
 		global $conn;
 		global $me;
 		global $org;
 		
-		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org;
+		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org." AND v.id NOT IN ".$notin;
 		
 		$result = $conn->query($sql);
 		if($result){
+			$outHTML = "<h4>Unlinked Variables</h4><div id='popupVariables'>";
 			$outp = "";
 			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
 				if ($outp != "") {$outp .= ",";}
@@ -276,11 +285,16 @@
 				$outp .= '"symbol":"'   .   htmlspecialchars($vsymb)     . '",';
 				$outp .= '"owner":"'   .   $rs["uu"]     . '",';
 				$outp .= '"description":"'. $rs["vd"]     . '"}'; 
+				$outHTML .= "<div id='var".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
 			}
 			$outp ='{"records":['.$outp.']}';
+			$outHTML.="<button id='addEntryInput' class='uibutton buttons addVars'>Add</button></div>";
 			$conn->close();
-
-			echo $outp;
+			if($htmlified){
+				echo $outHTML;
+			}else{
+				echo $outp;
+			}
 		}
 	}
 	
@@ -310,38 +324,60 @@
 		}
 	}
 	
-	/*function exchangeReq(){
+	function sysReqLinkage($sysid,$reqids,$connect){
 		global $conn;
 		global $me;
 		global $org;
 		
-		$sqlOpen = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
-		$sqlUsed = "SELECT r.id ri, r.name rn, r.description rd FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) WHERE r.active=1 AND p.org_id=".$org;
-		
-		$resultOpen = $conn->query($sqlOpen);
-		$resultUsed = $conn->query($sqlUsed);
-		
-		$out1=""
-		if($resultOpen){
-			while($rs=$resultOpen->fetch_array(MYSQLI_ASSOC)) {
-				if ($out1 != "") { $out1 .= ",";}
-				$out1 .='{"id":"' . $rs["ri"] . '",';
-				$out1 .= '"name":"'   .   $rs["rn"]     . '",';
-				$out1 .= '"description":"'. $rs["rd"]     . '"}'; 
-			}
+		$reqsUn="(";
+		foreach($reqids as $i){
+			if($reqsUn != "(") {$reqsUn .= ",";}
+			$reqsUn.=$i;
 		}
-		$out2=""
-		if($resultUsed){
-			while($rs=$resultUsed->fetch_array(MYSQLI_ASSOC)) {
-				if ($out1 != "") { $out1 .= ",";}
-				$out2 .='{"id":"' . $rs["ri"] . '",';
-				$out2 .= '"name":"'   .   $rs["rn"]     . '",';
-				$out2 .= '"description":"'. $rs["rd"]     . '"}'; 
-			}
-		}
-		$outp = '{"unusedReq":['.$out1.'],"usedReq":['.$out2.']}';
-		$conn->close();
+		$reqsUn.=")";
 		
-		echo $outp;
-	}*/
+		if($connect==1){
+			$sqlcheck = "SELECT requirementid ri FROM joint_requirement_system WHERE systemid=".$sysid." AND requirementid IN ".$reqsUn;
+			$resultcheck=$conn->query($sqlcheck);
+			$outp = array();
+			$i=0;
+			while($rs = $resultcheck->fetch_array(MYSQLI_ASSOC)) { 
+				$outp[$i]= $rs["ri"];
+				$i++;
+			}
+			$requ="(";
+			$reqi="(";
+			foreach($reqids as $i){
+				if($requ != "(") { $requ .= ",";}
+				if($reqi != "(") { $reqi .= ",(";}
+				if(in_array($i,$outp)){
+					$requ.=$i;
+				}else{
+					$reqi.=$sysid.",".$i.",1,".$me.",NULL";
+					$reqi.=")";
+				}
+			}
+			$requ=rtrim($requ, ",").")";
+			
+			$sql1="";
+			$sql2="";
+			if(sizeof($outp)<sizeof($reqids)){
+				$sql1 = "INSERT INTO JOINT_REQUIREMENT_SYSTEM (SYSTEMID,REQUIREMENTID,ACTIVE,CREATED_BY_USER_ID,CREATED_DATE) VALUES ".$reqi.";";
+			}
+			if(sizeof($outp)>0){	
+				$sql2 = "UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=1 WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$requ;
+			}
+			$sql=$sql1." ".$sql2;
+			$result= $conn->multi_query($sql);
+		}else{
+			$sql="UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=0 WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$reqsUn;
+			$result = $conn->query($sql);
+		}
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
 ?>
