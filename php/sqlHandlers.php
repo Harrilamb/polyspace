@@ -52,7 +52,15 @@
 		$reqids = $_POST["reqids"];
 		echo sysReqLinkage($sysid,$reqids,0);
 	}elseif($_POST["action"]=="unlinked_variables"){
-		echo findVariables($_POST["notin"],true);
+		echo findVariables($_POST["notin"],true,0);
+	}elseif($_POST["action"]=="link_variables"){
+		echo entryVarLinkage($_POST["entryid"],$_POST["variables"],$_POST["throughput"],1);
+	}elseif($_POST["action"]=="find_entryVars"){
+		echo findVariables("(0)",false,$_POST["entryid"]);
+	}elseif($_POST["action"]=="find_entries"){
+		echo findEntries($_POST["sysid"]);
+	}elseif($_POST["action"]=="add_entries"){
+		echo addEntries($_POST["sysid"],$_POST["title"],$_POST["description"]);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -66,7 +74,7 @@
 	}elseif($_GET["action"]=="all_requirements"){
 		echo findRequirements();
 	}elseif($_GET["action"]=="all_variables"){
-		echo findVariables();
+		echo findVariables("(0)",false,0);
 	}else{
 		echo "No Task Found";
 	}
@@ -101,8 +109,15 @@
 		$sql="INSERT INTO project (TITLE,DESCRIPTION,OWNERID,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$me."',".$org.",".$me.",NULL)";
 		
 		$result = $conn->query($sql);
+		
 		if($result){
-			return 1;
+			$sql2 = "INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('SYSTEM','Default starting point for all projects, flow out your systems from this one.',0,".$conn->insert_id.",1,".$me.",NULL);";
+			$result2 = $conn->query($sql2);
+			if($result2){
+				return 1;
+			}else{
+				return $conn->error;
+			}
 		}else{
 			return $conn->error;
 		}
@@ -154,6 +169,21 @@
 		$result = $conn->query($sql);
 		if($result){
 			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function addEntries($sysid,$title,$desc){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql="INSERT INTO entry (`SYSTEMID`,`MASTERID`,`CLONECOUNT`,`ENTRY_STATUS_CODE`,`TITLE`,`DESCRIPTION`,`ISFIRST`,`CREATED_BY_USER_ID`,`CREATED_DATE`) VALUES (".$sysid.",0,0,1,'".$title."','".$desc."',1,".$me.",NULL)";
+		
+		$result = $conn->query($sql);
+		if($result){
+			return json_encode(array("success"=>1,"entryid"=>$conn->insert_id));
 		}else{
 			return $conn->error;
 		}
@@ -266,12 +296,19 @@
 		}
 	}
 	
-	function findVariables($notin="(0)",$htmlified=false){
+	function findVariables($notin="(0)",$htmlified=false,$entry=0){
+	//!CURRENTLY HAS BAD CODE: if $entry!=0 && htmlified==true then htmlified won't return anything!
 		global $conn;
 		global $me;
 		global $org;
 		
-		$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org." AND v.id NOT IN ".$notin;
+		$typ = 0;
+		if($entry!=0){
+			$typ=1;
+			$sql = "SELECT v.id vi, v.symbol vs, v.units vu, jve.value jv, jvt.name jn FROM joint_vars_entry jve LEFT JOIN vars v ON (v.id=jve.varsid) LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) LEFT JOIN jv_throughput jvt ON (jvt.code=jve.throughput_code) WHERE jve.active=1 AND jve.entryid=".$entry." AND p.org_id=".$org;
+		}else{
+			$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org." AND v.id NOT IN ".$notin;
+		}
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -280,15 +317,21 @@
 			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
 				if ($outp != "") {$outp .= ",";}
 				$outp .= '{"id":"'  . $rs["vi"] . '",';
-				$outp .= '"name":"'   .   $rs["vn"]     . '",';
 				$vsymb = cleanString($rs["vs"]);
 				$outp .= '"symbol":"'   .   htmlspecialchars($vsymb)     . '",';
-				$outp .= '"owner":"'   .   $rs["uu"]     . '",';
-				$outp .= '"description":"'. $rs["vd"]     . '"}'; 
-				$outHTML .= "<div id='var".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
+				if($typ==1){
+					$outp .= '"joinValue":"' . $rs["jv"] . '",';
+					$outp .= '"joinName":"' . $rs["jn"] . '",';
+				}else{
+					$outp .= '"owner":"'   .   $rs["uu"]     . '",';
+					$outp .= '"name":"'   .   $rs["vn"]     . '",';
+					$outp .= '"description":"' . $rs["vd"] . '",';
+					$outHTML .= "<div id='var".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
+				}
+				$outp .= '"units":"'. $rs["vu"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
-			$outHTML.="<button id='addEntryInput' class='uibutton buttons addVars'>Add</button></div>";
+			$outHTML.="<button id='addEntryVars' class='uibutton buttons addVars'>Add</button></div>";
 			$conn->close();
 			if($htmlified){
 				echo $outHTML;
@@ -314,14 +357,34 @@
 			}
 			$outFinal =array("records"=>$outp);
 			$conn->close();
-
-			echo json_encode($outFinal);
 		}else{
 			$outFinal =array();
 			$conn->close();
-
-			echo json_encode($outFinal);
 		}
+		echo json_encode($outFinal);
+	}
+	
+	function findEntries($sysid){
+		global $conn;
+		global $me;
+		global $org;
+		$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec FROM entry e WHERE e.systemid=".$sysid;
+		
+		$result = $conn->query($sql);
+		if($result){
+			$outp=array();
+			$i=0;
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				$outp[$i] = array("id"=>$rs["ei"],"title"=>$rs["et"],"description"=>$rs["ed"],"master"=>$rs["em"],"clonecount"=>$rs["ec"]);
+				$i++;
+			}
+			$outFinal = array("records"=>$outp);
+			$conn->close();
+		}else{
+			$outFinal=array();
+			$conn->close();
+		}
+		echo json_encode($outFinal);
 	}
 	
 	function sysReqLinkage($sysid,$reqids,$connect){
@@ -371,6 +434,63 @@
 			$result= $conn->multi_query($sql);
 		}else{
 			$sql="UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=0 WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$reqsUn;
+			$result = $conn->query($sql);
+		}
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function entryVarLinkage($entry,$vars,$throughput,$connect){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$varsUn="(";
+		foreach($vars as $i){
+			if($varsUn != "("){$varsUn .= ",";}
+			$varsUn.=$i;
+		}
+		$varsUn.=")";
+		if($connect==1){
+			$sqlcheck = "SELECT varsid vi FROM joint_vars_entry WHERE entryid=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND varsid IN ".$varsUn;
+			$resultcheck=$conn->query($sqlcheck);
+			$outp = array();
+			
+			$i=0;
+			while($rs = $resultcheck->fetch_array(MYSQLI_ASSOC)) {
+				$outp[$i]=$rs["vi"];
+				$i++;
+			}
+			$varu="(";
+			$vari="(";
+			foreach($vars as $i){
+				if($varu != "(") {$varu .= ",";}
+				if($vari != "(") {$vari .= ",(";}
+				if(in_array($i,$outp)){
+					$varu.=$i;
+				}else{
+					$vari.=$entry.",".$i.",(SELECT code FROM jv_throughput WHERE name='".$throughput."'),1,".$me.",NULL";
+					$vari.=")";
+				}
+			}
+			$varu=rtrim($varu,",").")";
+			
+			$sql1="";
+			$sql2="";
+			if(sizeof($outp)<sizeof($vars)){
+				$sql1 = "INSERT INTO JOINT_VARS_ENTRY (ENTRYID,VARSID,THROUGHPUT_CODE,ACTIVE,CREATED_BY_USER_ID,CREATED_DATE) VALUES ".$vari.";";
+			}
+			if(sizeof($outp)>0){
+				$sql2 = "UPDATE JOINT_VARS_ENTRY SET ACTIVE=1 WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varu;			
+			}
+			$sql = $sql1." ".$sql2;
+			$result = $conn->multi_query($sql);
+		}else{
+			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0 WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varsUn;
 			$result = $conn->query($sql);
 		}
 		

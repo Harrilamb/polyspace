@@ -42,7 +42,7 @@
 				<p><b>SysAdmin:</b> Harry Lambert</p>
 				<p>For Questions, Comments, and/or Suggestions:</p>
 				<p><b>Phone:</b> 510-421-4007</p>
-				<p><b>Email:</b> lambert.harrison@gmail.com</p>
+				<p id="adminEmail"><b>Email:</b> lambert.harrison@gmail.com</p>
 			<!--End left column-->
 			</div>
 			<!--Start middle column-->
@@ -94,9 +94,10 @@
 						<div class="op sysop sysList">
 							<h3>All Systems:</h3>
 							<div ng-repeat="system in allSystems" class="entity currentEntity">
-								<div id="{{system.id}}">
+								<div id="{{system.id}}" class="systemEntity">
 									<div class="interact">
 										<i class="fa fa-rocket"></i>
+										<i class="fa fa-plus-square"></i>
 										<i class="fa fa-trash"></i>
 									</div>
 									<h4>{{system.title}}</h4>
@@ -130,47 +131,54 @@
 				</div>	
 				<div class="op entryop">
 					<form>
-						<h3>Welcome Harry</h3>
-						<div class="form-group">
-							<h4>Step 1 of 3</h4>
-							<label for="entrySysSelect"/>
-							<select id="entrySysSelect" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
-							</select>
-						</div>
-						<div class="form-group">
-							<h4>Step 2 of 3</h4>
-							<label for="teamNameSet">Name</label>
-							<input id="teamNameSet" type="text" class="form-control" placeholder="Name"/>
-							<label for="teamDescSet">Description</label>
-							<textarea id="teamDescSet" type="text" class="form-control" placeholder="Description"></textarea>
-							<h5>Variables</h5>
-							<table id="entryVarTable">
-								<thead>
-									<tr><th>Inputs</th><th>Outputs</th></tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td id="inputList"></td>
-										<td id="outputList"></td>
-									</tr>
-									<tr>
-										<td><button id="inputVarsAdd" class="uibutton buttons inputAddBtn">Add</button></td>
-										<td><button id="outputVarsAdd" class="uibutton buttons outputAddBtn">Add</button></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="form-group">
-							<h4>Step 3 of 3</h4>
-							<div>
-								<h5>Stage Entry</h5>
-								<p>Put it to the test!</p>
-								<button class="uibutton buttons">Stage</button>
+						<h3 id="createEntryTitle">Create An Entry</h3>
+						<div id="entryStep1Perm">
+							<div id="entryStep1" class="form-group">
+								<h4>Step 1 of 3</h4>
+								<label for="entrySysSelect">System</label>
+								<select id="entrySysSelect" class="form-control"></select>
+								<label for="entryNameSet">Title</label>
+								<input id="entryNameSet" type="text" class="form-control" placeholder="Name"/>
+								<label for="entryDescSet">Description</label>
+								<textarea id="entryDescSet" type="text" class="form-control" placeholder="Description"></textarea>
+								<button id="entryNext1" class="uibutton buttons">Step 2</button>
 							</div>
-							<div>
-								<h5>Stash Entry</h5>
-								<p>Just making it now.</p>
-								<button class="uibutton buttons">Stash</button>
+						</div>
+						<div id="entryStep2Perm">
+							<div id="entryStep2" class="form-group">
+								<h4>Step 2 of 3</h4>
+								<h5>Variables</h5>
+								<table id="entryVarTable">
+									<thead>
+										<tr><th>Inputs</th><th>Outputs</th></tr>
+									</thead>
+									<tbody class="entryVarBody">
+										<tr id="entryVarMainRow">
+											<td class="inputList"></td>
+											<td class="outputList"></td>
+										</tr>
+										<tr>
+											<td><button id="inputVarsAdd" class="uibutton buttons inputAddBtn">Add</button></td>
+											<td><button id="outputVarsAdd" class="uibutton buttons outputAddBtn">Add</button></td>
+										</tr>
+									</tbody>
+								</table>
+								<button id="entryNext2" class="uibutton buttons">Step 3</button>
+							</div>
+						</div>
+						<div id="entryStep3Perm">
+							<div id="entryStep3" class="form-group">
+								<h4>Step 3 of 3</h4>
+								<div>
+									<h5>Stage Entry</h5>
+									<p>Put it to the test!</p>
+									<button id="entryStage" class="uibutton buttons">Stage</button>
+								</div>
+								<div>
+									<h5>Stash Entry</h5>
+									<p>Just making it now.</p>
+									<button id="entryStash" class="uibutton buttons">Stash</button>
+								</div>
 							</div>
 						</div>
 					</form>
@@ -225,8 +233,6 @@
 						<div class="form-group">
 							<label for="systemParentSet">Parent System</label>
 							<select id="systemParentSet" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
-								<option value="none" selected="selected">--Choose One--</option>
-								<option value="0">Ronin</option>
 							</select>
 							<label for="systemTitleSet">Title</label>
 							<input id="systemTitleSet" type="text" class="form-control" placeholder="Title"/>
@@ -317,6 +323,11 @@
 							</tr>
 						</tbody>
 					</table>
+				</div>
+				<div class="op entryop">
+					<h3>Current Entries:</h3>
+					<div id="entryList" class="entity currentEntity">
+					</div>
 				</div>
 			<!--End right column-->
 			</div>

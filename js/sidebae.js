@@ -66,11 +66,15 @@ $(document).ready(function(){
 	};
 	
 	var entryBuilder = {
-		"entry":undefined,
+		"entryid":1, //switch to undefined when var add is finished
+		"currsys":undefined,
 		"systems":undefined,
 		"systemid":undefined,
 		"inputVars":"(0)",
-		"outputVars":undefined,
+		"outputVars":"(0)",
+		"unusedVars":undefined,
+		"currThroughput":undefined,
+		"jointVars":undefined,
 		"loadSystems":function(){
 			$.ajax({
 				method:"POST",
@@ -88,23 +92,222 @@ $(document).ready(function(){
 		},
 		"updateDropdown":function(){
 			var ebs = entryBuilder.systems;
-			var options = "<option val='0'>--Choose-One--</option>";
+			var options = "<option value='none'>--Choose-One--</option>";
 			for(var i in ebs){
-				options += "<option val='"+ebs[i].id+"'>"+ebs[i].title+"</option>";
+				options += "<option value='"+ebs[i].id+"'>"+ebs[i].title+"</option>";
 			}
-			$("#entrySysSelect").append(options);
+			$("#entrySysSelect").append(options);	
+			//This is lazy but i'm putting this here because it should be the same
+			$("#systemParentSet").append(options);
 		},
-		"updateVars":function(){
-			
+		"loadVariables":function(entry,target){
+			entryBuilder.entryid=entry;
+			$.ajax({
+				method:"POST",
+				url: "../php/sqlHandlers.php",
+				data: {
+					action:"find_entryVars",
+					entryid:entry
+				}
+			})
+			.done(function( msg ) {
+				if(msg){	
+					entryBuilder.jointVars = JSON.parse(msg).records;
+					if(target!=0){
+						entryBuilder.updateVarLists(target);
+					}
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be linked to the system.");
+				}
+			});
+		},
+		"updateVarLists":function(target){
+			var inList = [];
+			var outList = [];
+			for(var varx in entryBuilder.jointVars){
+				var thisVar = entryBuilder.jointVars[varx];
+				if(thisVar.joinName.toLowerCase()=="input"){
+					var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					inList[inList.length]=thisVar;
+					thing.appendTo("#"+target+" .inputList");
+				}else if(thisVar.joinName.toLowerCase()=="output"){
+					var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					outList[outList.length]=thisVar;
+					thing.appendTo("#"+target+" .outputList");
+				}
+			};
+			entryBuilder.inputVars=entryBuilder.jsToSqlArray(inList);
+			entryBuilder.outputVars=entryBuilder.jsToSqlArray(outList);
+		},
+		"jsToSqlArray":function(arr){
+			var ret = "(";
+			for(var thruput in arr){
+				if(ret!="("){ret+=",";}
+				ret+=arr[thruput].id;
+			}
+			ret+=")";
+			return ret;
+		},
+		"notinVars":function(location,throughput,popup){
+			entryBuilder.currThroughput = throughput;
+			if(throughput=="input"){
+				var dontpick = entryBuilder.inputVars;
+			}else if(throughput=="output"){
+				var dontpick = entryBuilder.outputVars;
+			}
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'unlinked_variables',
+					notin:dontpick
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+					entryBuilder.unusedVars=msg;
+					entryBuilder.buildUnusedVars(location);
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"buildUnusedVars":function(location,popup){
+			if(location=="colorbox"){
+				$.colorbox({html:entryBuilder.unusedVars});
+				$(".unlinkedVariables").click(function(){
+					$(this).toggleClass("entryVarSelect",function(){});
+				});
+				$("#addEntryVars").click(function(){
+					var i = 0;
+					var varsList = [];
+					$("#popupVariables .entryVarSelect").each(function(){
+						varsList[i]=parseInt(utilities.getNum($(this).attr("id")));
+						i++;
+					});
+					if(varsList.length!="()"){
+						entryBuilder.linkVariable(varsList,popup);
+					}else{
+						alert("You must select at least one requirement to transfer.");
+					}
+				});
+			}
+		},
+		"linkVariable":function(vars,popup){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'link_variables',
+					entryid:entryBuilder.entryid,
+					variables:vars,
+					throughput:entryBuilder.currThroughput
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+					if(popup==0){
+						$.colorbox.close();
+					}else{
+						$.colorbox({inline:true,href:"#entryStep2",overlayClose:false});
+					}
+					entryBuilder.loadVariables(1,"entryVarMainRow");
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"entryProcess":function(system,step){
+			if(step==1){
+				$("#entrySysSelect").val(system);
+				$.colorbox({inline:true,href:"#entryStep1",overlayClose:false});						
+				$("#cboxClose").on("click",function(){
+					var conf = confirm("Hold Up");
+					if(conf===true){$.colorbox.close();}
+				});
+				$("#entryNext1").click(function(){
+					var system = $("#entrySysSelect").val();
+					var title = $("#entryNameSet").val().trim();
+					var description = $("#entryDescSet").val().trim();
+					if(system!="none" && title!="" && description!=""){
+						entryBuilder.addEntry(system,title,description);
+					}else{
+						alert("All fields must be filled to proceed.");
+					}
+				});				
+			}else if(step==2){
+				$("#entryStep1").appendTo("#entryStep1Perm");
+				$.colorbox({inline:true,href:"#entryStep2",overlayClose:false});
+				$("#cboxClose").on("click",function(){
+					var conf = confirm("Hold Up");
+					if(conf){$.colorbox.close();$("#entryStep2").appendTo("#entryStep2Perm");$("#inputVarsAdd,#outputVarsAdd").removeClass("popup");}
+				});
+				$("#inputVarsAdd,#outputVarsAdd").addClass("popup");
+				$("#entryNext2").click(function(){
+					entryBuilder.loadVariables(1,"entryVarMainRow");
+				});
+			}else if(step==3){
+				$("#entryStep2").appendTo("#entryStep2Perm");
+				$("#inputVarsAdd,#outputVarsAdd").removeClass("popup");
+				$.colorbox({inline:true,href:"#entryStep3",overlayClose:false});
+				$("#entryStage").click(function(){
+				
+				});
+				$("#entryStash").click(function(){
+				
+				});
+			}
+			//$("#entryStep1").appendTo("#entryAddProcess");
+		},
+		"addEntry":function(system,name,desc){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'add_entries',
+					sysid: system,
+					title: name,
+					description:desc
+				}
+			})
+			.done(function( msg ) {
+				if(JSON.parse(msg).success==1){
+					entryBuilder.entryId=JSON.parse(msg).entryid;
+					entryBuilder.entryProcess(system,2);
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the entry was unable to be created.");
+				}
+			});
+		},
+		"loadEntries":function(system){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'find_entries',
+					sysid: system
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+					console.log(msg);
+				}else{
+					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
 		}
 	}
 	
-	var getNum = function(string){
-		var num = string.replace( /^\D+/g, '');
-		return num;
+	var utilities = { 
+		"getNum": function(string){
+			var num = string.replace( /^\D+/g, '');
+			return num;
+		}
 	};
 	
 	entryBuilder.loadSystems();
+	//entryBuilder.loadEntries(1);
 	$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
 	$(".homehead h1").click(function(){window.location.href="../index.php";});
 	
@@ -195,12 +398,12 @@ $(document).ready(function(){
 	
 //Handle the addition of a new system
 	$(".addSystem").click(function(){
-		if($("#systemParentSet").val()!="none" && $("#systemTitleSet").val().trim()!="" && $("#systemDescSet").val().trim()!=""){
+		if($("#systemParentSet").val()!="0" && $("#systemTitleSet").val().trim()!="" && $("#systemDescSet").val().trim()!=""){
 			$.ajax({
 				method:"POST",
 				url:"../php/sqlHandlers.php",
 				data: { action: 'add_system',
-						parent: $("#systemParentSet").val().trim(),
+						parent: $("#systemParentSet").val(),
 						title: $("#systemTitleSet").val().trim(),
 						description: $("#systemDescSet").val().trim()
 				}
@@ -351,6 +554,14 @@ $(document).ready(function(){
 		systemBuilder.dataUpdate();
 		$(".currop").removeClass("currop");
 		$(".sysReqOp,.sysList").addClass("currop");
+		$(".systemEntitySelect").removeClass("systemEntitySelect");
+		$(this).parents().eq(1).addClass("systemEntitySelect");
+	});
+	
+//Handle addition of an entry
+	$(".fa-plus-square").click(function(){
+		var sysid = $(this).parents().eq(1).attr("id");
+		entryBuilder.entryProcess(sysid,1);
 	});
 	
 //Handle deletion of an entity
@@ -363,7 +574,7 @@ $(document).ready(function(){
 		var i = 0;
 		var reqList = [];
 		$("#unlinkedList .sysReqSelect").each(function(){
-			reqList[i]=parseInt(getNum($(this).attr("id")));
+			reqList[i]=parseInt(utilities.getNum($(this).attr("id")));
 			i++;
 		});
 		if(reqList.length>0){
@@ -378,7 +589,7 @@ $(document).ready(function(){
 		var i = 0;
 		var reqList = [];
 		$("#linkedList .sysReqSelect").each(function(){
-			reqList[i]=parseInt(getNum($(this).attr("id")));
+			reqList[i]=parseInt(utilities.getNum($(this).attr("id")));
 			i++;
 		});
 		if(reqList.length>0){
@@ -392,26 +603,14 @@ $(document).ready(function(){
 	});
 	
 	$("#inputVarsAdd").click(function(){
-		$.ajax({
-		  	method:"POST",
-		  	url:"../php/sqlHandlers.php",
-		  	data: { action: 'unlinked_variables',
-					notin:entryBuilder.inputVars
-				}
-			})
-			.done(function( msg ) {
-				if(msg){
-					$.colorbox({html:msg});
-					$(".unlinkedVariables").click(function(){
-						$(this).toggleClass("entryVarSelect",function(){});
-					});
-				}else{
-					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
-				}
-			});
+		var popup=0;
+		if($(this).hasClass("popup")){popup = 1}
+		entryBuilder.notinVars("colorbox","input",popup);
 	});
+	
 	$("#outputVarsAdd").click(function(){
-		
+		var popup=0;
+		if($(this).hasClass("popup")){popup = 1}
+		entryBuilder.notinVars("colorbox","output",popup);
 	});
 });
