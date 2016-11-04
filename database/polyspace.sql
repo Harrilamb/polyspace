@@ -30,7 +30,8 @@ create index XFK_USER_ORG_UPDATED on ORGANIZATION
 
 create table PROJECT
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   OWNERID				BIGINT not null,
    TITLE                VARCHAR(40) not null,
    DESCRIPTION          VARCHAR(2000),
    PUBLIC               INT(1) not null default 1,
@@ -45,6 +46,14 @@ create table PROJECT
 create unique index XPK_PROJECT on PROJECT
 (
    ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_OWNER_PROJECT on PROJECT
+(
+   OWNERID
 );
 
 /*==============================================================*/
@@ -73,11 +82,13 @@ create index XFK_USER_PROJECT_UPDATED on PROJECT
 
 create table TEAM
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
    NAME	                VARCHAR(60) not null,
+   DESCRIPTION	        VARCHAR(2000),
    PUBLIC               INT(1) not null default 1,
    ACTIVE               INT(1) not null default 1,
-   PROJ_ID           	BIGINT,
+   ORG_ID           	BIGINT not null,
+   PROJECT_ID           BIGINT,
    CREATED_BY_USER_ID   BIGINT not null,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
    UPDATED_BY_USER_ID   BIGINT not null,
@@ -92,10 +103,19 @@ create unique index XPK_TEAM on TEAM
 /*==============================================================*/
 /* Index: XFK_COMPANY_DOCUMENT                                  */
 /*==============================================================*/
-create index XFK_PROJ_TEAM on TEAM
+create index XFK_PROJECT_TEAM on TEAM
 (
-   PROJ_ID
+   PROJECT_ID
 );
+
+/*==============================================================*/
+/* Index: XFK_ORG_PROJECT		                                */
+/*==============================================================*/
+create index XFK_ORG_TEAM on TEAM
+(
+   ORG_ID
+);
+
 
 /*==============================================================*/
 /* Index: XFK_USER_DOCUMENT                                     */
@@ -113,13 +133,15 @@ create index XFK_USER_TEAM_UPDATED on TEAM
    UPDATED_BY_USER_ID
 );
 
+
 create table USER
 (
    ID                   BIGINT not null auto_increment PRIMARY KEY,
    PRIM_TEAM_ID         BIGINT not null,
+   ORG_ID           	BIGINT not null,
    USERNAME             VARCHAR(30) not null,
    PASSWORD				VARCHAR(255) not null,
-   USER_TYPE_CODE       VARCHAR(20) not null,
+   USER_TYPE_CODE       BIGINT not null,
    EMAIL                VARCHAR(255) not null,
    PHONE				VARCHAR(60),
    FIRST_NAME           VARCHAR(30) not null,
@@ -148,6 +170,15 @@ create index XFK_TEAM_USER on USER
 );
 
 /*==============================================================*/
+/* Index: XFK_ORG_PROJECT		                                */
+/*==============================================================*/
+create index XFK_ORG_USER on USER
+(
+   ORG_ID
+);
+
+
+/*==============================================================*/
 /* Index: XFK_USER_TYPE_USER                                    */
 /*==============================================================*/
 create index XFK_USER_TYPE_USER on USER
@@ -160,8 +191,8 @@ create index XFK_USER_TYPE_USER on USER
 /*==============================================================*/
 create table USER_TYPE
 (
-   CODE                 VARCHAR(20) not null,
-   DESCRIPTION          VARCHAR(80) not null,
+   CODE                 BIGINT not null auto_increment PRIMARY KEY,
+   NAME          		VARCHAR(80) not null,
    COMMENT              VARCHAR(1000) not null comment 'Details around what privileges this type of user has and other helpful information'
 );
 
@@ -175,17 +206,19 @@ create unique index XPK_USER_TYPE on USER_TYPE
    CODE
 );
 
+
 create table ENTRY
 (
-   ID                   BIGINT not null PRIMARY KEY,
-   CLONEID				BIGINT NOT NULL,
-   CLONECOUNT			INT(20) AUTO_INCREMENT UNIQUE,
-   NAME	                VARCHAR(60) not null,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   SYSTEMID				BIGINT not null,
+   MASTERID				BIGINT default 0,
+   CLONECOUNT			INT(20) default 0,
+   ENTRY_STATUS_CODE	BIGINT not null default 0,
+   CURRENT				TINYINT(1) not null default 0,
+   TITLE	            VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
-   PUBLIC               INT(1) not null default 1,
+   ISFIRST				TINYINT(1) not null default 1,
    ACTIVE               INT(1) not null default 1,
-   APPROVAL	        	INT,
-   PROJ_ID           	BIGINT,
    CREATED_BY_USER_ID   BIGINT not null,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
    UPDATED_BY_USER_ID   BIGINT not null,
@@ -198,11 +231,27 @@ create unique index XPK_ENTRY on ENTRY
 );
 
 /*==============================================================*/
-/* Index: XFK_COMPANY_DOCUMENT                                  */
+/* Index: XFK_COMPANY_USER                                      */
 /*==============================================================*/
-create index XFK_PROJ_ENTRY on ENTRY
+create index XFK_SYSTEM_ENTRY on ENTRY
 (
-   PROJ_ID
+   SYSTEMID
+);
+
+/*==============================================================*/
+/* Index: XFK_COMPANY_USER                                      */
+/*==============================================================*/
+create index XFK_ENTRY_ENTRY on ENTRY
+(
+   MASTERID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_ENTRY_STATUS_ENTRY on ENTRY
+(
+   ENTRY_STATUS_CODE
 );
 
 /*==============================================================*/
@@ -221,152 +270,38 @@ create index XFK_USER_ENTRY_UPDATED on ENTRY
    UPDATED_BY_USER_ID
 );
 
-create table DESIGN
+/*==============================================================*/
+/* Table: ENTRY_STATUS                                          */
+/*==============================================================*/
+create table ENTRY_STATUS
 (
-   ID                   BIGINT not null PRIMARY KEY,
-   CLONEID				BIGINT NOT NULL,
-   CLONECOUNT			INT(20) AUTO_INCREMENT UNIQUE,
-   NAME	                VARCHAR(60) not null,
-   DESCRIPTION	        VARCHAR(2000),
-   PUBLIC               INT(1) not null default 1,
-   ACTIVE               INT(1) not null default 1,
-   APPROVAL	        	INT,
-   ENTRY_ID           	BIGINT,
-   CREATED_BY_USER_ID   BIGINT not null,
-   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
-   UPDATED_BY_USER_ID   BIGINT not null,
-   UPDATED_DATE         timestamp default now() on update now()
+   CODE                 BIGINT not null auto_increment PRIMARY KEY,
+   NAME          		VARCHAR(80) not null,
+   COMMENT              VARCHAR(1000) not null comment 'Details around what level of approval the entry is at.'
 );
 
-create unique index XPK_DESIGN on DESIGN
-(
-   ID
-);
+alter table ENTRY_STATUS comment 'Used to identify progress of entry in approval process';
 
 /*==============================================================*/
-/* Index: XFK_COMPANY_DOCUMENT                                  */
+/* Index: XPK_ENTRY_STATUS                                      */
 /*==============================================================*/
-create index XFK_ENTRY_DESIGN on DESIGN
+create unique index XPK_ENTRY_STATUS on ENTRY_STATUS
 (
-   ENTRY_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT                                     */
-/*==============================================================*/
-create index XFK_USER_DESIGN on DESIGN
-(
-   CREATED_BY_USER_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT_UPDATED                             */
-/*==============================================================*/
-create index XFK_USER_DESIGN_UPDATED on DESIGN
-(
-   UPDATED_BY_USER_ID
-);
-
-create table SUBSYSTEM
-(
-   ID                   BIGINT not null PRIMARY KEY,
-   CLONEID				BIGINT NOT NULL,
-   CLONECOUNT			INT(20) AUTO_INCREMENT UNIQUE,
-   NAME	                VARCHAR(60) not null,
-   DESCRIPTION	        VARCHAR(2000),
-   PUBLIC               INT(1) not null default 1,
-   ACTIVE               INT(1) not null default 1,
-   APPROVAL	        	INT,
-   DESIGN_ID           	BIGINT,
-   CREATED_BY_USER_ID   BIGINT not null,
-   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
-   UPDATED_BY_USER_ID   BIGINT not null,
-   UPDATED_DATE         timestamp default now() on update now()
-);
-
-create unique index XPK_SUBSYSTEM on SUBSYSTEM
-(
-   ID
-);
-
-/*==============================================================*/
-/* Index: XFK_COMPANY_DOCUMENT                                  */
-/*==============================================================*/
-create index XFK_DESIGN_SUBSYSTEM on SUBSYSTEM
-(
-   DESIGN_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT                                     */
-/*==============================================================*/
-create index XFK_USER_SUBSYSTEM on SUBSYSTEM
-(
-   CREATED_BY_USER_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT_UPDATED                             */
-/*==============================================================*/
-create index XFK_DESIGN_SUBSYSTEM_UPDATED on SUBSYSTEM
-(
-   UPDATED_BY_USER_ID
-);
-
-create table PROPERTY
-(
-   ID                   BIGINT not null PRIMARY KEY,
-   NAME	                VARCHAR(60) not null,
-   DESCRIPTION	        VARCHAR(2000),
-   PUBLIC               INT(1) not null default 1,
-   ACTIVE               INT(1) not null default 1,
-   APPROVAL	        	INT,
-   ENTRY_ID           	BIGINT,
-   CREATED_BY_USER_ID   BIGINT not null,
-   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
-   UPDATED_BY_USER_ID   BIGINT not null,
-   UPDATED_DATE         timestamp default now() on update now()
-);
-
-create unique index XPK_PROPERTY on PROPERTY
-(
-   ID
-);
-
-/*==============================================================*/
-/* Index: XFK_COMPANY_DOCUMENT                                  */
-/*==============================================================*/
-create index XFK_ENTRY_PROPERTY on PROPERTY
-(
-   ENTRY_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT                                     */
-/*==============================================================*/
-create index XFK_USER_PROPERTY on PROPERTY
-(
-   CREATED_BY_USER_ID
-);
-
-/*==============================================================*/
-/* Index: XFK_USER_DOCUMENT_UPDATED                             */
-/*==============================================================*/
-create index XFK_USER_PROPERTY_UPDATED on PROPERTY
-(
-   UPDATED_BY_USER_ID
+   CODE
 );
 
 create table REQUIREMENT
 (
-   ID                   BIGINT not null PRIMARY KEY,
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   PROJECT_ID           BIGINT,
    NAME	                VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),
-   PUBLIC               INT(1) not null default 1,
+   SOURCE				VARCHAR(255),
+   PF_FORMAT			VARCHAR(60),
+   TIER					INT(5),
+   DYNAMIC				INT(1) not null default 1,
+   APPROVED				INT(1) not null default 0,
    ACTIVE               INT(1) not null default 1,
-   DEACT_DATE			DATETIME,
-   APPROVAL	        	INT,
-   PROPERTY_ID          BIGINT,
    CREATED_BY_USER_ID   BIGINT not null,
    CREATED_DATE         timestamp default '0000-00-00 00:00:00',
    UPDATED_BY_USER_ID   BIGINT not null,
@@ -381,9 +316,9 @@ create unique index XPK_REQUIREMENT on REQUIREMENT
 /*==============================================================*/
 /* Index: XFK_COMPANY_DOCUMENT                                  */
 /*==============================================================*/
-create index XFK_PROPERTY_REQUIREMENT on REQUIREMENT
+create index XFK_PROJECT_REQUIREMENT on REQUIREMENT
 (
-   PROPERTY_ID
+   PROJECT_ID
 );
 
 /*==============================================================*/
@@ -449,4 +384,429 @@ create index XFK_USER_CONTACT on ENTRY
 create index XFK_USER_CONTACT_UPDATED on ENTRY
 (
    UPDATED_BY_USER_ID
+);
+
+create table SYSTEM
+(
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   LFT 					INT not null,
+   RGT 					INT not null,
+   PARENT_ID			BIGINT,
+   PROJECT_ID           BIGINT,
+   TITLE	            VARCHAR(60) not null,
+   DESCRIPTION	        VARCHAR(2000),
+   ACTIVE               INT(1) not null default 1,
+   ISMASTER	        	BOOLEAN default false,
+   CREATED_BY_USER_ID   BIGINT not null,
+   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
+   UPDATED_BY_USER_ID   BIGINT not null,
+   UPDATED_DATE         timestamp default now() on update now()
+);
+
+create unique index XPK_SYSTEM on SYSTEM
+(
+   ID
+);
+
+/*==============================================================*/
+/* Index: XFK_COMPANY_DOCUMENT                                  */
+/*==============================================================*/
+create index XFK_PROJECT_SYSTEM on SYSTEM
+(
+   PROJECT_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_SYSTEM on SYSTEM
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_SYSTEM_UPDATED on SYSTEM
+(
+   UPDATED_BY_USER_ID
+);
+
+create table VARS
+(
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   PROJECT_ID           BIGINT,
+   NAME	                VARCHAR(60) not null,
+   DESCRIPTION	        VARCHAR(2000),
+   UNITS				VARCHAR(60),
+   SYMBOL				VARCHAR(60),
+   ACTIVE               INT(1) not null default 1,
+   CREATED_BY_USER_ID   BIGINT not null,
+   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
+   UPDATED_BY_USER_ID   BIGINT not null,
+   UPDATED_DATE         timestamp default now() on update now()
+);
+
+create unique index XPK_VARS on VARS
+(
+   ID
+);
+
+/*==============================================================*/
+/* Index: XFK_COMPANY_DOCUMENT                                  */
+/*==============================================================*/
+create index XFK_PROJECT_VARS on VARS
+(
+   PROJECT_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_VARS on VARS
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_VARS_UPDATED on VARS
+(
+   UPDATED_BY_USER_ID
+);
+
+create table JOINT_VARS_SYSTEM
+(
+	ID					BIGINT not null auto_increment PRIMARY KEY,
+	SYSTEMID			BIGINT,
+	VARSID				BIGINT,
+	THROUGHPUT_CODE		BIGINT not null default 0,
+	ACTIVE				INT(1) not null default 1,
+	CREATED_BY_USER_ID  BIGINT not null,
+	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
+	UPDATED_BY_USER_ID  BIGINT not null,
+	UPDATED_DATE        timestamp default now() on update now()
+);
+
+create unique index XPK_JVS on JOINT_VARS_SYSTEM
+(
+	ID
+);
+
+create index XFK_SYSTEM_JVS on JOINT_VARS_SYSTEM
+(
+	SYSTEMID
+);
+
+create index XFK_VARS_JVS on JOINT_VARS_SYSTEM
+(
+	VARSID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_JV_THROUGHPUT_JVS on JOINT_VARS_SYSTEM
+(
+   THROUGHPUT_CODE
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_JVS on JOINT_VARS_SYSTEM
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_JVS_UPDATED on JOINT_VARS_SYSTEM
+(
+   UPDATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Table: USER_TYPE                                             */
+/*==============================================================*/
+create table JV_THROUGHPUT
+(
+   CODE                 BIGINT not null auto_increment PRIMARY KEY,
+   NAME          		VARCHAR(80) not null,
+   COMMENT              VARCHAR(1000) not null comment 'Details about how the variable is attached to a system (input,output,etc.)'
+);
+
+alter table JV_THROUGHPUT comment 'Used to identify how a variable is attached to a system.';
+
+/*==============================================================*/
+/* Index: XPK_USER_TYPE                                         */
+/*==============================================================*/
+create unique index XPK_JV_THROUGHPUT on JV_THROUGHPUT
+(
+   CODE
+);
+
+create table JOINT_REQUIREMENT_SYSTEM
+(
+	ID					BIGINT not null auto_increment PRIMARY KEY,
+	SYSTEMID			BIGINT,
+	REQUIREMENTID		BIGINT,
+	IMPORTANCE_CODE		BIGINT not null default 0,
+	ACTIVE				INT(1) not null default 1,
+	REMOVAL_REASON		VARCHAR(1000),
+	CREATED_BY_USER_ID  BIGINT not null,
+	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
+	UPDATED_BY_USER_ID  BIGINT not null,
+	UPDATED_DATE        timestamp default now() on update now()
+);
+
+create unique index XPK_JRS on JOINT_REQUIREMENT_SYSTEM
+(
+	ID
+);
+
+create index XFK_SYSTEM_JRS on JOINT_REQUIREMENT_SYSTEM
+(
+	SYSTEMID
+);
+
+create index XFK_VARS_JRS on JOINT_REQUIREMENT_SYSTEM
+(
+	REQUIREMENTID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_JR_IMPORTANCE_JRS on JOINT_REQUIREMENT_SYSTEM
+(
+   IMPORTANCE_CODE
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_JRS on JOINT_REQUIREMENT_SYSTEM
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_JRS_UPDATED on JOINT_REQUIREMENT_SYSTEM
+(
+   UPDATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Table: USER_TYPE                                             */
+/*==============================================================*/
+create table JR_IMPORTANCE
+(
+   CODE                 BIGINT not null auto_increment PRIMARY KEY,
+   NAME          		VARCHAR(80) not null,
+   COMMENT              VARCHAR(1000) not null comment 'Details about how the variable is attached to a system (input,output,etc.)'
+);
+
+alter table JR_IMPORTANCE comment 'Used to identify how a variable is attached to a system.';
+
+/*==============================================================*/
+/* Index: XPK_USER_TYPE                                         */
+/*==============================================================*/
+create unique index XPK_JR_IMPORTANCE on JR_IMPORTANCE
+(
+   CODE
+);
+
+create table JOINT_VARS_ENTRY
+(
+	ID					BIGINT not null auto_increment PRIMARY KEY,
+	ENTRYID				BIGINT,
+	VARSID				BIGINT,
+	THROUGHPUT_CODE		BIGINT not null default 0,
+	VALUE				VARCHAR(255),
+	COMMENT				VARCHAR(1000),
+	VALIDATED			INT(1) not null default 0,
+	ACTIVE				INT(1) not null default 1,
+	CREATED_BY_USER_ID  BIGINT not null,
+	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
+	UPDATED_BY_USER_ID  BIGINT not null,
+	UPDATED_DATE        timestamp default now() on update now()
+);
+
+create unique index XPK_JVE on JOINT_VARS_ENTRY
+(
+	ID
+);
+
+create index XFK_SYSTEM_JVE on JOINT_VARS_ENTRY
+(
+	ENTRYID
+);
+
+create index XFK_VARS_JVE on JOINT_VARS_ENTRY
+(
+	VARSID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_JV_THROUGHPUT_JVE on JOINT_VARS_ENTRY
+(
+   THROUGHPUT_CODE
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_JVE on JOINT_VARS_SYSTEM
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_JVE_UPDATED on JOINT_VARS_SYSTEM
+(
+   UPDATED_BY_USER_ID
+);
+
+create table JOINT_REQUIREMENT_ENTRY
+(
+	ID					BIGINT not null auto_increment PRIMARY KEY,
+	ENTRYID				BIGINT,
+	REQUIREMENTID		BIGINT,
+	VOTERID				BIGINT,
+	IMPORTANCE_CODE		BIGINT not null default 0,
+	VOTE				BOOLEAN null,
+	REASON				VARCHAR(1000),
+	VALIDATED			INT(1) null,
+	ACTIVE				INT(1) not null default 1,
+	CREATED_BY_USER_ID  BIGINT not null,
+	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
+	UPDATED_BY_USER_ID  BIGINT not null,
+	UPDATED_DATE        timestamp default now() on update now()
+);
+
+create unique index XPK_JRE on JOINT_REQUIREMENT_ENTRY
+(
+	ID
+);
+
+create index XFK_SYSTEM_JRE on JOINT_REQUIREMENT_ENTRY
+(
+	ENTRYID
+);
+
+create index XFK_VARS_JRE on JOINT_REQUIREMENT_ENTRY
+(
+	REQUIREMENTID
+);
+
+create index XFK_USER_JRE_VOTER on JOINT_REQUIREMENT_ENTRY
+(
+	VOTERID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_JR_IMPORTANCE_JRE on JOINT_REQUIREMENT_ENTRY
+(
+   IMPORTANCE_CODE
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_JRE on JOINT_REQUIREMENT_ENTRY
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_JRE_UPDATED on JOINT_REQUIREMENT_ENTRY
+(
+   UPDATED_BY_USER_ID
+);
+
+create table JOINT_USER_TEAM
+(
+	ID					BIGINT not null auto_increment PRIMARY KEY,
+	USERID				BIGINT,
+	TEAMID				BIGINT,
+	OWNER				INT(1) not null default 0,
+	POSITION_CODE		BIGINT,
+	CURRENT				INT(1) not null default 0,
+	ACTIVE				INT(1) not null default 1,
+	CREATED_BY_USER_ID  BIGINT not null,
+	CREATED_DATE        timestamp default '0000-00-00 00:00:00',
+	UPDATED_BY_USER_ID  BIGINT not null,
+	UPDATED_DATE        timestamp default now() on update now()
+);
+
+create unique index XPK_JUT on JOINT_USER_TEAM
+(
+	ID
+);
+
+create index XFK_SYSTEM_JRE on JOINT_USER_TEAM
+(
+	USERID
+);
+
+create index XFK_VARS_JRE on JOINT_USER_TEAM
+(
+	TEAMID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_TYPE_USER                                    */
+/*==============================================================*/
+create index XFK_JUT_POSITION_JUT on JOINT_USER_TEAM
+(
+   POSITION_CODE
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_JUT on JOINT_USER_TEAM
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_JUT_UPDATED on JOINT_USER_TEAM
+(
+   UPDATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Table: USER_TYPE                                             */
+/*==============================================================*/
+create table JUT_POSITION
+(
+   CODE                 BIGINT not null auto_increment PRIMARY KEY,
+   NAME          		VARCHAR(80) not null,
+   COMMENT              VARCHAR(1000) not null comment 'Details about how the variable is attached to a system (input,output,etc.)'
+);
+
+alter table JUT_POSITION comment 'Used to identify how a variable is attached to a system.';
+
+/*==============================================================*/
+/* Index: XPK_USER_TYPE                                         */
+/*==============================================================*/
+create unique index XPK_JUT_POSITION on JUT_POSITION
+(
+   CODE
 );

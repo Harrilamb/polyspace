@@ -41,8 +41,7 @@
 		$variableUnits = htmlspecialchars($_POST["units"]);
 		echo addVariable($variableName,$variableDesc,$variableSymbol,$variableUnits);
 	}elseif($_POST["action"]=="find_reqs"){
-		$sysid = $_POST["sysid"];
-		echo findReqs($sysid);
+		echo findReqs($_POST["sysid"]);
 	}elseif($_POST["action"]=="link_requirements"){
 		$sysid = $_POST["sysid"];
 		$reqids = $_POST["reqids"];
@@ -61,6 +60,8 @@
 		echo findEntries($_POST["sysid"]);
 	}elseif($_POST["action"]=="add_entries"){
 		echo addEntries($_POST["sysid"],$_POST["title"],$_POST["description"]);
+	}elseif($_POST["action"]=="update_variables"){
+		echo updateVariables($_POST["val"],$_POST["vid"],$_POST["eid"],$_POST["thruput"]);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -309,7 +310,6 @@
 		}else{
 			$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org." AND v.id NOT IN ".$notin;
 		}
-		
 		$result = $conn->query($sql);
 		if($result){
 			$outHTML = "<h4>Unlinked Variables</h4><div id='popupVariables'>";
@@ -326,7 +326,7 @@
 					$outp .= '"owner":"'   .   $rs["uu"]     . '",';
 					$outp .= '"name":"'   .   $rs["vn"]     . '",';
 					$outp .= '"description":"' . $rs["vd"] . '",';
-					$outHTML .= "<div id='var".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
+					$outHTML .= "<div id='evars".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
 				}
 				$outp .= '"units":"'. $rs["vu"]     . '"}'; 
 			}
@@ -346,7 +346,6 @@
 		global $me;
 		global $org;
 		$sql = "SELECT r.id ri, r.name rn, r.description rd, IF(r.id IN (SELECT jrs.requirementid FROM joint_requirement_system jrs WHERE jrs.active=1 AND jrs.systemid=".$sysid."),true,false) linked FROM requirement r WHERE r.active=1";
-		
 		$result = $conn->query($sql);
 		if($result){
 			$outp=array();
@@ -368,14 +367,19 @@
 		global $conn;
 		global $me;
 		global $org;
-		$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec FROM entry e WHERE e.systemid=".$sysid;
+		
+		if($sysid===0){
+			$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec, e.current ecurr,ow.username uu, ow.id ui FROM entry e LEFT JOIN system s ON (s.id=e.systemid) LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user ow ON (ow.id=e.created_by_user_id) WHERE e.active=1 AND p.org_id=".$org;
+		}else{
+			$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec, e.current ecurr,u.username uu, u.id ui FROM entry e LEFT JOIN user u ON (u.id=e.created_by_user_id) WHERE e.active=1 AND e.systemid=".$sysid;
+		}
 		
 		$result = $conn->query($sql);
 		if($result){
 			$outp=array();
 			$i=0;
 			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
-				$outp[$i] = array("id"=>$rs["ei"],"title"=>$rs["et"],"description"=>$rs["ed"],"master"=>$rs["em"],"clonecount"=>$rs["ec"]);
+				$outp[$i] = array("id"=>$rs["ei"],"title"=>$rs["et"],"description"=>$rs["ed"],"master"=>$rs["em"],"clonecount"=>$rs["ec"],"current"=>$rs["ecurr"],"owner"=>$rs["uu"],"ownerid"=>$rs["ui"]);
 				$i++;
 			}
 			$outFinal = array("records"=>$outp);
@@ -493,6 +497,21 @@
 			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0 WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varsUn;
 			$result = $conn->query($sql);
 		}
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function updateVariables($val,$varid,$entryid,$throughput){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql = "UPDATE JOINT_VARS_ENTRY SET VALUE='".$val."' WHERE VARSID=".$varid." AND ENTRYID=".$entryid." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."')";
+		$result= $conn->query($sql);
 		
 		if($result){
 			return 1;

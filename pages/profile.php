@@ -17,14 +17,7 @@
 </head>
 
 <body>
-	<div class="container-fluid"> <!-- If Needed Left and Right Padding in 'md' and 'lg' screen means use container class -->
-		<div class="row homehead">
-			<h1>Cal Poly Space Design</h1>
-			<div class="systemTab">
-				<ul id="userbar"><li><a  id="usersname" class="btn-link profile" href="profile.php"></a></li><li> | </li><li><a id="logout" class="btn-link logout">Logout</a></li></ul>
-			</div>
-		</div>
-	</div>
+	<div id="headerArea" class="container-fluid"> <!-- If Needed Left and Right Padding in 'md' and 'lg' screen means use container class --></div>
 	<div class="container profileBody" ng-app="userInfoApp" ng-controller="setTeams" >
 		<div class="row">
 			<!--Start left column-->
@@ -52,7 +45,8 @@
 						<div class="op teamop currop">
 							<h3>Current Team:</h3>
 							<div ng-repeat="team in thisTeam" class="entity currentEntity">
-								<div id="{{team.id}}">
+								<div id="team{{team.id}}">
+									<div class="currentIcon"><i title="#1 Team" class="fa fa-trophy"></i></div>
 									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
@@ -63,7 +57,11 @@
 							<h3>Other Teams:</h3>
 							<div>
 								<div ng-repeat="team in otherTeams" class="entity otherEntity">
-									<div id="{{team.id}}">
+									<div id="team{{team.id}}">
+										<div class="interact">
+											<i title="Make Primary Team" class="fa fa-trophy"></i>
+											<i title="Delete This Team" class="fa fa-trash"></i>
+										</div>
 										<h4>{{team.name}}</h4>
 										<p>{{team.description}}</p>
 										<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
@@ -74,7 +72,8 @@
 						<div class="op projop">
 							<h3>Current Project:</h3>
 							<div ng-repeat="proj in currProj" class="entity currentEntity">
-								<div id="{{proj.id}}">
+								<div id="proj{{proj.id}}">
+									<div class="currentIcon"><i title="#1 Project" class="fa fa-trophy"></i></div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
@@ -84,7 +83,11 @@
 						<div class="op projop">
 							<h3>Other Projects:</h3>
 							<div ng-repeat="proj in otherProjs" class="entity otherEntity">
-								<div id="{{proj.id}}">
+								<div id="proj{{proj.id}}">
+									<div class="interact">
+										<i title="Make Primary Project" class="fa fa-trophy"></i>
+										<i title="Delete This Project" class="fa fa-trash"></i>
+									</div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
@@ -94,22 +97,27 @@
 						<div class="op sysop sysList">
 							<h3>All Systems:</h3>
 							<div ng-repeat="system in allSystems" class="entity currentEntity">
-								<div id="{{system.id}}" class="systemEntity">
+								<div id="sys{{system.id}}" class="systemEntity">
 									<div class="interact">
-										<i class="fa fa-rocket"></i>
-										<i class="fa fa-plus-square"></i>
-										<i class="fa fa-trash"></i>
+										<i title="Attach Requirements" class="fa fa-rocket"></i>
+										<i title="Add An Entry" class="fa fa-plus-square"></i>
+										<i title="Delete This System" class="fa fa-trash"></i>
 									</div>
-									<h4>{{system.title}}</h4>
-									<p>{{system.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{system.owner}}">{{system.owner}}</a>
+									<div>
+										<h4>{{system.title}}</h4>
+										<p>{{system.description}}</p>
+										<a class="btn-link" href="profile.php?glimpse={{system.owner}}">{{system.owner}}</a>
+									</div>
 								</div>
 							</div>
 						</div>
 						<div class="op reqop">
 							<h3>All Requirements:</h3>
 							<div ng-repeat="requirement in allRequirements" class="entity currentEntity">
-								<div id="{{requirement.id}}">
+								<div id="req{{requirement.id}}">
+									<div class="interact">
+										<i title="Delete This System" class="fa fa-trash"></i>
+									</div>
 									<h4>{{requirement.name}}</h4>
 									<p>{{requirement.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{requirement.owner}}">{{requirement.owner}}</a>
@@ -119,7 +127,10 @@
 						<div class="op varop">
 							<h3>All Variables:</h3>
 							<div ng-repeat="variable in allVariables" class="entity currentEntity">
-								<div id="{{variable.id}}">
+								<div id="var{{variable.id}}">
+									<div class="interact">
+										<i title="Delete This System" class="fa fa-trash"></i>
+									</div>
 									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>
 									<p>{{variable.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{variable.owner}}">{{variable.owner}}</a>
@@ -141,7 +152,7 @@
 								<input id="entryNameSet" type="text" class="form-control" placeholder="Name"/>
 								<label for="entryDescSet">Description</label>
 								<textarea id="entryDescSet" type="text" class="form-control" placeholder="Description"></textarea>
-								<button id="entryNext1" class="uibutton buttons">Step 2</button>
+								<button id="entryNext1" class="uibutton buttons">Step 2 -></button>
 							</div>
 						</div>
 						<div id="entryStep2Perm">
@@ -163,7 +174,7 @@
 										</tr>
 									</tbody>
 								</table>
-								<button id="entryNext2" class="uibutton buttons">Step 3</button>
+								<button id="entryNext2" class="uibutton buttons">Step 3 -></button>
 							</div>
 						</div>
 						<div id="entryStep3Perm">
@@ -324,9 +335,12 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="op entryop">
+				<div id="entryLists" class="op entryop">
 					<h3>Current Entries:</h3>
-					<div id="entryList" class="entity currentEntity">
+					<div id="currEntryList">
+					</div>
+					<h3>Other Entries:</h3>
+					<div id="otherEntryList">
 					</div>
 				</div>
 			<!--End right column-->

@@ -205,7 +205,7 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 }
 
 .currentEntity{
-	border-left:4px solid #F7CE3E;
+	border-left:4px solid gold;
 	padding-left:5px;
 }
 
@@ -240,4 +240,32 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 
 .sysReqSelect,.entryVarSelect,.systemEntitySelect{
 	background-color:#FFFF00;
+}
+
+.currentIcon{
+	float:right;
+}
+
+.currentIcon i{
+	color:gold;
+}
+
+.otherEntity .fa-trophy:hover{
+	color:gold;
+}
+
+.otherEntity .fa-trash:hover{
+	color:red;
+}
+
+.currentEntity .fa-trash:hover{
+	color:red;
+}
+
+.fa-plus-square:hover{
+	color:green;
+}
+
+.fa-rocket:hover{
+	color:orange;
 }

@@ -66,15 +66,17 @@ $(document).ready(function(){
 	};
 	
 	var entryBuilder = {
-		"entryid":1, //switch to undefined when var add is finished
+		"entryid":undefined, //switch to undefined when var add is finished
 		"currsys":undefined,
 		"systems":undefined,
+		"entries":undefined,
 		"systemid":undefined,
 		"inputVars":"(0)",
 		"outputVars":"(0)",
 		"unusedVars":undefined,
 		"currThroughput":undefined,
 		"jointVars":undefined,
+//Load systems available to attach the entry to
 		"loadSystems":function(){
 			$.ajax({
 				method:"POST",
@@ -90,6 +92,7 @@ $(document).ready(function(){
 				}
 			});
 		},
+//Put loaded systems in dropdown used to select when making an entry
 		"updateDropdown":function(){
 			var ebs = entryBuilder.systems;
 			var options = "<option value='none'>--Choose-One--</option>";
@@ -100,6 +103,7 @@ $(document).ready(function(){
 			//This is lazy but i'm putting this here because it should be the same
 			$("#systemParentSet").append(options);
 		},
+//Load variables available to attach to the entry
 		"loadVariables":function(entry,target){
 			entryBuilder.entryid=entry;
 			$.ajax({
@@ -122,33 +126,47 @@ $(document).ready(function(){
 				}
 			});
 		},
+//Put loaded variables into lists of variables used to select and edit for entry creation
 		"updateVarLists":function(target){
 			var inList = [];
 			var outList = [];
+			$("#"+target+" .inputList").empty();
+			$("#"+target+" .outputList").empty();
 			for(var varx in entryBuilder.jointVars){
 				var thisVar = entryBuilder.jointVars[varx];
 				if(thisVar.joinName.toLowerCase()=="input"){
-					var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' id='fuckme' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
 					inList[inList.length]=thisVar;
 					thing.appendTo("#"+target+" .inputList");
 				}else if(thisVar.joinName.toLowerCase()=="output"){
-					var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
 					outList[outList.length]=thisVar;
 					thing.appendTo("#"+target+" .outputList");
 				}
 			};
-			entryBuilder.inputVars=entryBuilder.jsToSqlArray(inList);
-			entryBuilder.outputVars=entryBuilder.jsToSqlArray(outList);
-		},
-		"jsToSqlArray":function(arr){
-			var ret = "(";
-			for(var thruput in arr){
-				if(ret!="("){ret+=",";}
-				ret+=arr[thruput].id;
+			if(inList.length!=0){
+				entryBuilder.inputVars=utilities.jsToSqlArray(inList);
+			}else{
+				entryBuilder.inputVars="(0)";
 			}
-			ret+=")";
-			return ret;
+			if(outList.length!=0){
+				entryBuilder.outputVars=utilities.jsToSqlArray(outList);
+			}else{
+				entryBuilder.outputVars="(0)";
+			}
+			$(".entryVar input").on("focusout",function(){
+				var value = $(this).val();
+				var varid = utilities.getNum($(this).parent().attr("id"));
+				var throughput="";
+				if($(this).parent().attr("id").indexOf("invar") !== -1){
+					throughput = "input";
+				}else if($(this).parent().attr("id").indexOf("outvar") !==-1){
+					throughput = "output";
+				}
+				entryBuilder.changeVarVals(value,varid,throughput);
+			});
 		},
+//
 		"notinVars":function(location,throughput,popup){
 			entryBuilder.currThroughput = throughput;
 			if(throughput=="input"){
@@ -166,7 +184,7 @@ $(document).ready(function(){
 			.done(function( msg ) {
 				if(msg){
 					entryBuilder.unusedVars=msg;
-					entryBuilder.buildUnusedVars(location);
+					entryBuilder.buildUnusedVars(location,popup);
 				}else{
 					console.log(msg);
 					alert("Something didn't go right, the variable was unable to be created.");
@@ -211,7 +229,7 @@ $(document).ready(function(){
 					}else{
 						$.colorbox({inline:true,href:"#entryStep2",overlayClose:false});
 					}
-					entryBuilder.loadVariables(1,"entryVarMainRow");
+					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 				}else{
 					console.log(msg);
 					alert("Something didn't go right, the variable was unable to be created.");
@@ -221,11 +239,7 @@ $(document).ready(function(){
 		"entryProcess":function(system,step){
 			if(step==1){
 				$("#entrySysSelect").val(system);
-				$.colorbox({inline:true,href:"#entryStep1",overlayClose:false});						
-				$("#cboxClose").on("click",function(){
-					var conf = confirm("Hold Up");
-					if(conf===true){$.colorbox.close();}
-				});
+				$.colorbox({inline:true,href:"#entryStep1",overlayClose:false,escKey:false});						
 				$("#entryNext1").click(function(){
 					var system = $("#entrySysSelect").val();
 					var title = $("#entryNameSet").val().trim();
@@ -238,19 +252,15 @@ $(document).ready(function(){
 				});				
 			}else if(step==2){
 				$("#entryStep1").appendTo("#entryStep1Perm");
-				$.colorbox({inline:true,href:"#entryStep2",overlayClose:false});
-				$("#cboxClose").on("click",function(){
-					var conf = confirm("Hold Up");
-					if(conf){$.colorbox.close();$("#entryStep2").appendTo("#entryStep2Perm");$("#inputVarsAdd,#outputVarsAdd").removeClass("popup");}
-				});
+				$.colorbox({inline:true,href:"#entryStep2",overlayClose:false,escKey:false});
 				$("#inputVarsAdd,#outputVarsAdd").addClass("popup");
 				$("#entryNext2").click(function(){
-					entryBuilder.loadVariables(1,"entryVarMainRow");
+					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 				});
 			}else if(step==3){
 				$("#entryStep2").appendTo("#entryStep2Perm");
 				$("#inputVarsAdd,#outputVarsAdd").removeClass("popup");
-				$.colorbox({inline:true,href:"#entryStep3",overlayClose:false});
+				$.colorbox({inline:true,href:"#entryStep3",overlayClose:false,escKey:false});
 				$("#entryStage").click(function(){
 				
 				});
@@ -272,7 +282,8 @@ $(document).ready(function(){
 			})
 			.done(function( msg ) {
 				if(JSON.parse(msg).success==1){
-					entryBuilder.entryId=JSON.parse(msg).entryid;
+					entryBuilder.entryid=JSON.parse(msg).entryid;
+					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 					entryBuilder.entryProcess(system,2);
 				}else{
 					console.log(msg);
@@ -290,7 +301,49 @@ $(document).ready(function(){
 			})
 			.done(function( msg ) {
 				if(msg){
+					entryBuilder.entries=JSON.parse(msg).records;
+					entryBuilder.updateEntryList();
+				}else{
 					console.log(msg);
+					alert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"updateEntryList":function(){
+			$("#otherEntryList").empty();
+			$("#currEntryList").empty();
+			
+			for(var entry in entryBuilder.entries){
+				var thisEntry = entryBuilder.entries[entry];
+				if(thisEntry.current==1){
+					var thing = $("<div id='entry"+thisEntry.id+"' class='entity currentEntity entryEntity'><h4>"+thisEntry.title+"</h4><p>"+thisEntry.description+"</p><a class='btn-link' href='profile.php?glimpse="+thisEntry.ownerid+"'>"+thisEntry.owner+"</a></div>");
+					thing.appendTo("#currEntryList");
+				}else{
+					var thing = $("<div id='entry"+thisEntry.id+"' class='entity otherEntity entryEntity'><h4>"+thisEntry.title+"</h4><p>"+thisEntry.description+"</p><a class='btn-link' href='profile.php?glimpse="+thisEntry.ownerid+"'>"+thisEntry.owner+"</a></div>");
+					thing.appendTo("#otherEntryList");
+				}
+			};
+			$(".entryEntity").click(function(){
+				var entryid = utilities.getNum($(this).attr("id"));
+				entryBuilder.entryid = entryid;
+				entryBuilder.loadVariables(entryid,"entryVarMainRow");
+				$.colorbox({inline:true,href:"#entryStep2"});
+			});
+		},
+		"changeVarVals":function(value,varid,throughput){
+			var entryid = entryBuilder.entryid;
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'update_variables',
+					val: value,
+					vid: varid,
+					eid: entryid,
+					thruput:throughput
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
 				}else{
 					console.log(msg);
 					alert("Something didn't go right, the variable was unable to be created.");
@@ -298,18 +351,38 @@ $(document).ready(function(){
 			});
 		}
 	}
-	
+//Object to store userful methods
 	var utilities = { 
+//Extract number from a string, used to get db ids from html element ids
 		"getNum": function(string){
 			var num = string.replace( /^\D+/g, '');
 			return num;
+		},
+//Convert javascript array to a string array that can be used in sql IN statement
+		"jsToSqlArray":function(arr){
+			var ret = "(";
+			for(var thruput in arr){
+				if(ret!="("){ret+=",";}
+				ret+=arr[thruput].id;
+			}
+			ret+=")";
+			return ret;
 		}
 	};
-	
+
+//Initialize page
 	entryBuilder.loadSystems();
-	//entryBuilder.loadEntries(1);
-	$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
-	$(".homehead h1").click(function(){window.location.href="../index.php";});
+	entryBuilder.loadEntries(0);
+
+//Banner load and actions (link to home, load username)
+	$(function(){$("#headerArea").load("../html/heading-banner.html",
+		function(){
+			$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
+			$(".homehead h1").click(function(){window.location.href="../index.php";
+			});
+		});
+	});
+	
 	
 //Easy utility for quick html close buttons
 	$(".close").click(function(){
@@ -546,10 +619,20 @@ $(document).ready(function(){
 				$(".op").addClass("currop");
 		}
 	});
-	
+		
+	$(".systemEntity").click(function(){
+		$(".systemEntitySelect").removeClass("systemEntitySelect");
+		$(this).addClass("systemEntitySelect");
+		$(".currop").removeClass("currop");
+		$(this).parents().eq(1).addClass("currop");
+		var sysid = parseInt(utilities.getNum($(this).attr("id")));
+		entryBuilder.loadEntries(sysid);
+		$("#entryLists").addClass("currop");
+	});
+
 //Switch to system definition tool
 	$(".fa-rocket").click(function(){
-		var sysid = $(this).parents().eq(1).attr("id");
+		var sysid = parseInt(utilities.getNum($(this).parents().eq(1).attr("id")));
 		systemBuilder.system = sysid;
 		systemBuilder.dataUpdate();
 		$(".currop").removeClass("currop");
@@ -557,6 +640,13 @@ $(document).ready(function(){
 		$(".systemEntitySelect").removeClass("systemEntitySelect");
 		$(this).parents().eq(1).addClass("systemEntitySelect");
 	});
+	
+	$(".systemEntity").click(function(){
+        $(this).children(".children").toggle();
+    });
+   $(".systemEntity .interact i").click(function(e) {
+        e.stopPropagation();
+   });
 	
 //Handle addition of an entry
 	$(".fa-plus-square").click(function(){
@@ -612,5 +702,9 @@ $(document).ready(function(){
 		var popup=0;
 		if($(this).hasClass("popup")){popup = 1}
 		entryBuilder.notinVars("colorbox","output",popup);
+	});
+	
+	$(document).bind('cbox_complete', function(){
+	  $.colorbox.resize();
 	});
 });
