@@ -1,4 +1,5 @@
 $(document).ready(function(){
+//Object to handle the system management process
 	var systemBuilder = {
 		"system":undefined,
 		"requirements":undefined,
@@ -16,7 +17,7 @@ $(document).ready(function(){
 					systemBuilder.DOMUpdate();
 				}else{
 					console.log(JSON.parse(msg));
-					alert("Sorry something went wrong.");
+					("Sorry something went wrong.");
 				};
 			});
 		},
@@ -59,12 +60,13 @@ $(document).ready(function(){
 					systemBuilder.dataUpdate();
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the requirement was unable to be linked to the system.");
+					sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
 				}
 			});
 		},
 	};
 	
+//Object to handle the entry management process
 	var entryBuilder = {
 		"entryid":undefined, //switch to undefined when var add is finished
 		"currsys":undefined,
@@ -76,6 +78,7 @@ $(document).ready(function(){
 		"unusedVars":undefined,
 		"currThroughput":undefined,
 		"jointVars":undefined,
+		"lockProcess":false,
 //Load systems available to attach the entry to
 		"loadSystems":function(){
 			$.ajax({
@@ -88,7 +91,7 @@ $(document).ready(function(){
 					entryBuilder.updateDropdown();
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the requirement was unable to be linked to the system.");
+					sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
 				}
 			});
 		},
@@ -122,7 +125,7 @@ $(document).ready(function(){
 					}
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be linked to the system.");
+					sweetAlert("Something didn't go right, the variable was unable to be linked to the system.");
 				}
 			});
 		},
@@ -187,7 +190,7 @@ $(document).ready(function(){
 					entryBuilder.buildUnusedVars(location,popup);
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -207,7 +210,7 @@ $(document).ready(function(){
 					if(varsList.length!="()"){
 						entryBuilder.linkVariable(varsList,popup);
 					}else{
-						alert("You must select at least one requirement to transfer.");
+						sweetAlert("You must select at least one requirement to transfer.");
 					}
 				});
 			}
@@ -232,12 +235,13 @@ $(document).ready(function(){
 					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
 		"entryProcess":function(system,step){
 			if(step==1){
+				entryBuilder.lockProcess=true;
 				$("#entrySysSelect").val(system);
 				$.colorbox({inline:true,href:"#entryStep1",overlayClose:false,escKey:false});						
 				$("#entryNext1").click(function(){
@@ -247,7 +251,7 @@ $(document).ready(function(){
 					if(system!="none" && title!="" && description!=""){
 						entryBuilder.addEntry(system,title,description);
 					}else{
-						alert("All fields must be filled to proceed.");
+						sweetAlert("All fields must be filled to proceed.");
 					}
 				});				
 			}else if(step==2){
@@ -255,18 +259,13 @@ $(document).ready(function(){
 				$.colorbox({inline:true,href:"#entryStep2",overlayClose:false,escKey:false});
 				$("#inputVarsAdd,#outputVarsAdd").addClass("popup");
 				$("#entryNext2").click(function(){
-					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
+					//entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
+					entryBuilder.entryProcess(system,3);
 				});
 			}else if(step==3){
 				$("#entryStep2").appendTo("#entryStep2Perm");
 				$("#inputVarsAdd,#outputVarsAdd").removeClass("popup");
 				$.colorbox({inline:true,href:"#entryStep3",overlayClose:false,escKey:false});
-				$("#entryStage").click(function(){
-				
-				});
-				$("#entryStash").click(function(){
-				
-				});
 			}
 			//$("#entryStep1").appendTo("#entryAddProcess");
 		},
@@ -287,7 +286,7 @@ $(document).ready(function(){
 					entryBuilder.entryProcess(system,2);
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the entry was unable to be created.");
+					sweetAlert("Something didn't go right, the entry was unable to be created.");
 				}
 			});
 		},
@@ -305,7 +304,7 @@ $(document).ready(function(){
 					entryBuilder.updateEntryList();
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -319,7 +318,7 @@ $(document).ready(function(){
 					var thing = $("<div id='entry"+thisEntry.id+"' class='entity currentEntity entryEntity'><h4>"+thisEntry.title+"</h4><p>"+thisEntry.description+"</p><a class='btn-link' href='profile.php?glimpse="+thisEntry.ownerid+"'>"+thisEntry.owner+"</a></div>");
 					thing.appendTo("#currEntryList");
 				}else{
-					var thing = $("<div id='entry"+thisEntry.id+"' class='entity otherEntity entryEntity'><h4>"+thisEntry.title+"</h4><p>"+thisEntry.description+"</p><a class='btn-link' href='profile.php?glimpse="+thisEntry.ownerid+"'>"+thisEntry.owner+"</a></div>");
+					var thing = $("<div id='entry"+thisEntry.id+"' class='entity otherEntity entryEntity'><div class='interact'><i title='Delete This Entry' class='fa fa-trash fa-lg'></i></div><h4>"+thisEntry.title+"</h4><p>"+thisEntry.description+"</p><a class='btn-link' href='profile.php?glimpse="+thisEntry.ownerid+"'>"+thisEntry.owner+"</a></div>");
 					thing.appendTo("#otherEntryList");
 				}
 			};
@@ -327,6 +326,7 @@ $(document).ready(function(){
 				var entryid = utilities.getNum($(this).attr("id"));
 				entryBuilder.entryid = entryid;
 				entryBuilder.loadVariables(entryid,"entryVarMainRow");
+				$("#inputVarsAdd,#outputVarsAdd").addClass("popup");
 				$.colorbox({inline:true,href:"#entryStep2"});
 			});
 		},
@@ -346,11 +346,162 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"stageEntry":function(){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'stage_entry',
+					entry: entryBuilder.entryid
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}
 	}
+	
+//Object to handle relationships
+	var counselor = {
+		"switchTeams":function(team){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'switch_teams',
+					teamid:team
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"switchProjects":function(proj){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'switch_projects',
+						projid:proj
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+				
+		},
+		"removeTeam":function(team){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_team',
+						teamid:team
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"removeProject":function(proj){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_project',
+						projid:proj
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"removeSystem":function(sys){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_system',
+						sysid:sys
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+					console.log(msg);
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"removeRequirement":function(req){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_requirement',
+						reqid:req
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"removeVariable":function(vars){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_variable',
+						varid:vars
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"removeEntry":function(entry){
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'remove_entry',
+						entryid:entry
+					}
+			})
+			.done(function( msg ) {
+				if(msg){
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		}
+	};
+	
 //Object to store userful methods
 	var utilities = { 
 //Extract number from a string, used to get db ids from html element ids
@@ -367,6 +518,36 @@ $(document).ready(function(){
 			}
 			ret+=")";
 			return ret;
+		},
+//
+		"confirmAction":function(string,fn,yes,no,color){
+			if(color=="red"){
+				color="#DD6B55";
+			}else if(color=="green"){
+				color="#008000";
+			}else{
+				//blue
+				color="3e779d";
+			}
+			swal({
+			  title: "Are you sure?",
+			  text: string,
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: color,
+			  confirmButtonText: yes,
+			  cancelButtonText: no,
+			  closeOnConfirm: false,
+			  closeOnCancel: false
+			},
+			function(isConfirm){
+			  if (isConfirm) {
+			  	fn();
+				swal("WooHOOO!", "'Execute that order, you will bitch' -Yoda", "success");
+			  } else {
+				swal("Cancelled", "Okay Okay I didn't do it....jeez", "error");
+			  }
+			});
 		}
 	};
 
@@ -412,7 +593,7 @@ $(document).ready(function(){
 			if(msg==1){
 				window.location.href="pages/home.php";
 			}else{
-				alert("I'm sorry dave, I can't do that.");
+				sweetAlert("I'm sorry dave, I can't do that.");
 			}
 		  });
 	});
@@ -435,7 +616,7 @@ $(document).ready(function(){
 					$("#teamDescSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the team was unable to be created.");
+					sweetAlert("Something didn't go right, the team was unable to be created.");
 				}
 			});
 		}else{
@@ -461,7 +642,7 @@ $(document).ready(function(){
 					$("#projectDescSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the project was unable to be created.");
+					sweetAlert("Something didn't go right, the project was unable to be created.");
 				}
 			});
 		}else{
@@ -489,7 +670,7 @@ $(document).ready(function(){
 					$("#systemDescSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the system was unable to be created.");
+					sweetAlert("Something didn't go right, the system was unable to be created.");
 				}
 			});
 		}else{
@@ -523,7 +704,7 @@ $(document).ready(function(){
 					$("#requirementDynamicSet").prop("checked",true);
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the requirement was unable to be created.");
+					sweetAlert("Something didn't go right, the requirement was unable to be created.");
 				}
 			});
 		}else{
@@ -553,7 +734,7 @@ $(document).ready(function(){
 					$("#variableUnitSet").val("");
 				}else{
 					console.log(msg);
-					alert("Something didn't go right, the variable was unable to be created.");
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}else{
@@ -578,7 +759,7 @@ $(document).ready(function(){
 		  	if(msg==1){
 		  		window.location.href="home.php";
 		  	}else{
-		  		alert("Something went wrong trying to add you, please contact the site admin Harrison L with the deets.");
+		  		sweetAlert("Something went wrong trying to add you, please contact the site admin Harrison L with the deets.");
 		  	}
 		  });
 	});
@@ -595,6 +776,7 @@ $(document).ready(function(){
 	
 //Switch between entity views, triggered by list
 	$(".switchop").click(function(){
+		$(".systemEntitySelect").removeClass("systemEntitySelect");
 		$(".currop").removeClass("currop");
 		switch($(this).text()){
 			case 'Team':
@@ -612,9 +794,6 @@ $(document).ready(function(){
 			case 'Variable':
 				$(".varop").addClass("currop");
 			break;
-			case 'Entry':
-				$(".entryop").addClass("currop");
-			break;
 			default:
 				$(".op").addClass("currop");
 		}
@@ -625,6 +804,7 @@ $(document).ready(function(){
 		$(this).addClass("systemEntitySelect");
 		$(".currop").removeClass("currop");
 		$(this).parents().eq(1).addClass("currop");
+		$("#entryLists").addClass("currop");
 		var sysid = parseInt(utilities.getNum($(this).attr("id")));
 		entryBuilder.loadEntries(sysid);
 		$("#entryLists").addClass("currop");
@@ -644,19 +824,56 @@ $(document).ready(function(){
 	$(".systemEntity").click(function(){
         $(this).children(".children").toggle();
     });
+    
    $(".systemEntity .interact i").click(function(e) {
         e.stopPropagation();
    });
 	
 //Handle addition of an entry
 	$(".fa-plus-square").click(function(){
-		var sysid = $(this).parents().eq(1).attr("id");
+		var sysid = utilities.getNum($(this).parents().eq(1).attr("id"));
 		entryBuilder.entryProcess(sysid,1);
 	});
 	
 //Handle deletion of an entity
 	$(".fa-trash").click(function(){
-		var userid = $(this).parents().eq(1).attr("id");
+		var adult = $(this).parents().eq(1).attr("id");
+		var entityid = utilities.getNum(adult);
+		if($(this).parents().eq(2).hasClass("currentEntity")===false){
+			if(adult.indexOf("team")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this team?",function(){counselor.removeTeam(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else if(adult.indexOf("proj")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this project?",function(){counselor.removeProject(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else if(adult.indexOf("entry")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this entry?",function(){counselor.removeEntry(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else{
+				sweetAlert("I don't know what icon you clicked o_0");
+			}
+		}else{
+			if(adult.indexOf("sys")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this system?",function(){counselor.removeSystem(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else if(adult.indexOf("req")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this requirement?",function(){counselor.removeRequirement(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else if(adult.indexOf("var")!=-1){
+				utilities.confirmAction("Are you sure you want to delete this variable?",function(){counselor.removeVariable(entityid);},"Yes, delete it!","No, cancel plox!","red");
+			}else{
+				sweetAlert("I don't know what icon you clicked o_0");
+			}
+		}
+	});
+	
+	$(".fa-trophy").click(function(){
+		var adult = $(this).parents().eq(1).attr("id");
+		if($(this).parents().eq(2).hasClass("currentEntity")===false){
+			var entityid = utilities.getNum(adult);
+			if(adult.indexOf("team")!=-1){
+				utilities.confirmAction("Are you sure you want to promote this team?",function(){counselor.switchTeams(entityid);},"Yes, promote it!","No, cancel plox!","green");
+			}else if(adult.indexOf("proj")!=-1){
+				utilities.confirmAction("Are you sure you want to promote this project?",function(){counselor.switchProjects(entityid);},"Yes, promote it!","No cancel plox!","green");
+			}else{
+				console.log("I don't know what icon you clicked o_0");
+			}
+		}
 	});
 		
 //Handle the linkage of a requirement to a system
@@ -670,7 +887,7 @@ $(document).ready(function(){
 		if(reqList.length>0){
 			systemBuilder.changeReqLinkage(reqList,1);
 		}else{
-			alert("You must select at least one requirement to transfer.");
+			sweetAlert("You must select at least one requirement to transfer.");
 		}
 	});
 	
@@ -685,9 +902,10 @@ $(document).ready(function(){
 		if(reqList.length>0){
 			systemBuilder.changeReqLinkage(reqList,0);
 		}else{
-			alert("You must select at least one requirement to transfer.");
+			sweetAlert("You must select at least one requirement to transfer.");
 		}
 	});	
+	
 	$("#testy").click(function(){
 		$.colorbox({html:"<h1>Welcome Harry</h1>",trapFocus:true,overlayClose:false});
 	});
@@ -704,7 +922,25 @@ $(document).ready(function(){
 		entryBuilder.notinVars("colorbox","output",popup);
 	});
 	
+	$("#entryStage").click(function(){
+		entryBuilder.stageEntry();
+		$.colorbox.close();
+		sweetAlert("Awww yeah dawg! This entry is ready for the stage!");
+		entryBuilder.lockProcess=false;
+	});
+	
+	$("#entryStash").click(function(){
+		$.colorbox.close();
+		sweetAlert("All finished, this entry is now created!");
+		entryBuilder.lockProcess=false;
+	});
+
+	
 	$(document).bind('cbox_complete', function(){
-	  $.colorbox.resize();
+	  $.colorbox.resize({width:"500px",height:"400px"});
+	  	
+		$("#cancelVarAdd").click(function(){
+			alert('yeup');
+		});
 	});
 });

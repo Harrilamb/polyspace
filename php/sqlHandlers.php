@@ -62,6 +62,24 @@
 		echo addEntries($_POST["sysid"],$_POST["title"],$_POST["description"]);
 	}elseif($_POST["action"]=="update_variables"){
 		echo updateVariables($_POST["val"],$_POST["vid"],$_POST["eid"],$_POST["thruput"]);
+	}elseif($_POST["action"]=="switch_teams"){
+		echo updateTeams($_POST["teamid"]);
+	}elseif($_POST["action"]=="switch_projects"){
+		echo updateProjects($_POST["projid"]);
+	}elseif($_POST["action"]=="remove_team"){
+		echo removeRecord($_POST["teamid"],"team");
+	}elseif($_POST["action"]=="remove_project"){
+		echo removeRecord($_POST["projid"],"project");
+	}elseif($_POST["action"]=="stage_entry"){
+		echo stageEntry($_POST["entry"]);
+	}elseif($_POST["action"]=="remove_system"){
+		echo removeRecord($_POST["sysid"],"system");
+	}elseif($_POST["action"]=="remove_requirement"){
+		echo removeRecord($_POST["reqid"],"requirement");
+	}elseif($_POST["action"]=="remove_variable"){
+		echo removeRecord($_POST["varid"],"variable");
+	}elseif($_POST["action"]=="remove_entry"){
+		echo removeRecord($_POST["entryid"],"entry");
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -254,7 +272,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1))";
+		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1))";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -331,7 +349,7 @@
 				$outp .= '"units":"'. $rs["vu"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
-			$outHTML.="<button id='addEntryVars' class='uibutton buttons addVars'>Add</button></div>";
+			$outHTML.="<a id='cancelVarAdd' class='btn btn-link'>Cancel</a><button id='addEntryVars' class='uibutton buttons addVars'>Add</button></div>";
 			$conn->close();
 			if($htmlified){
 				echo $outHTML;
@@ -432,12 +450,12 @@
 				$sql1 = "INSERT INTO JOINT_REQUIREMENT_SYSTEM (SYSTEMID,REQUIREMENTID,ACTIVE,CREATED_BY_USER_ID,CREATED_DATE) VALUES ".$reqi.";";
 			}
 			if(sizeof($outp)>0){	
-				$sql2 = "UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=1 WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$requ;
+				$sql2 = "UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=1,UPDATED_BY_USER_ID=".$me." WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$requ;
 			}
 			$sql=$sql1." ".$sql2;
 			$result= $conn->multi_query($sql);
 		}else{
-			$sql="UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=0 WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$reqsUn;
+			$sql="UPDATE JOINT_REQUIREMENT_SYSTEM SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$reqsUn;
 			$result = $conn->query($sql);
 		}
 		
@@ -489,12 +507,12 @@
 				$sql1 = "INSERT INTO JOINT_VARS_ENTRY (ENTRYID,VARSID,THROUGHPUT_CODE,ACTIVE,CREATED_BY_USER_ID,CREATED_DATE) VALUES ".$vari.";";
 			}
 			if(sizeof($outp)>0){
-				$sql2 = "UPDATE JOINT_VARS_ENTRY SET ACTIVE=1 WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varu;			
+				$sql2 = "UPDATE JOINT_VARS_ENTRY SET ACTIVE=1,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varu;			
 			}
 			$sql = $sql1." ".$sql2;
 			$result = $conn->multi_query($sql);
 		}else{
-			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0 WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varsUn;
+			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varsUn;
 			$result = $conn->query($sql);
 		}
 		
@@ -510,8 +528,117 @@
 		global $me;
 		global $org;
 		
-		$sql = "UPDATE JOINT_VARS_ENTRY SET VALUE='".$val."' WHERE VARSID=".$varid." AND ENTRYID=".$entryid." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."')";
+		$sql = "UPDATE JOINT_VARS_ENTRY SET VALUE='".$val."',UPDATED_BY_USER_ID=".$me." WHERE VARSID=".$varid." AND ENTRYID=".$entryid." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."')";
 		$result= $conn->query($sql);
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function updateTeams($team){
+		global $conn;
+		global $me;
+		global $org;
+			
+		$sqlcheck = "SELECT id juti FROM joint_user_team WHERE teamid=".$team." AND userid=".$me;
+		$resultcheck=$conn->query($sqlcheck);
+		
+		$outp = array();
+		$i=0;
+		while($rs = $resultcheck->fetch_array(MYSQLI_ASSOC)) {
+			$outp[$i]=$rs["juti"];
+			$i++;
+		}
+		
+		$sql1="";
+		$sql2="";
+		if(sizeof($outp)===0){
+			$sql1 = "INSERT INTO JOINT_USER_TEAM (TEAMID,USERID,CURRENT,CREATED_BY_USER_ID,CREATED_DATE) VALUES (".$team.",".$me.",1,".$me.",NULL);";
+		}elseif(sizeof($outp)>0){
+			$sql2 = "UPDATE JOINT_USER_TEAM SET CURRENT=1,UPDATED_BY_USER_ID=".$me." WHERE TEAMID=".$team." AND USERID = ".$me.";";			
+		}
+		$sql = $sql1." ".$sql2." UPDATE JOINT_USER_TEAM SET CURRENT=0,UPDATED_BY_USER_ID=".$me." WHERE USERID=".$me." AND TEAMID!=".$team.";";
+		$result = $conn->multi_query($sql);
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+		
+	}
+	
+	function updateProjects($proj){
+		global $conn;
+		global $me;
+		global $org;
+			
+		$sql="UPDATE TEAM SET PROJECT_ID=".$proj.",UPDATED_BY_USER_ID=".$me." WHERE ID=(SELECT TEAMID FROM JOINT_USER_TEAM WHERE USERID=".$me." AND CURRENT=1);";
+		$result = $conn->query($sql);
+		
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+		
+	}
+	
+	function removeRecord($entityid,$entity){
+		global $conn;
+		global $me;
+		global $org;
+		
+		if($entity=="team"){
+			$sql="UPDATE TEAM SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid."; UPDATE JOINT_USER_TEAM SET ACTIVE=0 WHERE TEAMID=".$entityid.";"; 
+		}elseif($entity=="project"){
+			$sql="UPDATE PROJECT SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid.";";
+		}elseif($entity=="system"){
+			$sql="UPDATE SYSTEM SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid.";";
+		}elseif($entity=="requirement"){
+			$sql="UPDATE REQUIREMENT SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid.";";
+		}elseif($entity=="variable"){
+			$sql="UPDATE VARS SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid.";";
+		}elseif($entity=="entry"){
+			$sql="UPDATE ENTRY SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ID=".$entityid.";";
+		}else{
+			return "Unable to delete entity.";
+		}
+		$result=$conn->multi_query($sql);
+		if($result){
+			return 1;
+		}else{
+			return $conn->error;
+		}
+	}
+	
+	function stageEntry($entryid){
+		global $conn;
+		global $me;
+		global $org;
+			
+		$sqlcheck = "SELECT id ei FROM entry WHERE systemid=(SELECT systemid FROM entry WHERE id=".$entryid.") AND entry_status_code=3";
+		$resultcheck=$conn->query($sqlcheck);
+		
+		$outp = array();
+		$i=0;
+		while($rs = $resultcheck->fetch_array(MYSQLI_ASSOC)) {
+			$outp[$i]=$rs["ei"];
+			$i++;
+		}
+		
+		$sql1="";
+		$sql2="";
+		if(sizeof($outp)===0){
+			$sql1 = "UPDATE ENTRY SET ENTRY_STATUS_CODE=3,UPDATED_BY_USER_ID=".$me." WHERE ACTIVE=1 AND ID=".$entryid;
+		}elseif(sizeof($outp)>0){
+			$sql2 = "UPDATE ENTRY SET ENTRY_STATUS_CODE=2,UPDATED_BY_USER_ID=".$me." WHERE ACTIVE=1 AND ID=".$entryid;			
+		}
+		$sql = $sql1." ".$sql2;
+		$result = $conn->multi_query($sql);
 		
 		if($result){
 			return 1;

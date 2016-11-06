@@ -30,7 +30,6 @@
 					<li class="btn-link switchop">System</li>
 					<li class="btn-link switchop">Requirement</li>
 					<li class="btn-link switchop">Variable</li>
-					<li class="btn-link switchop">Entry</li>
 				</ul>
 				<p><b>SysAdmin:</b> Harry Lambert</p>
 				<p>For Questions, Comments, and/or Suggestions:</p>
@@ -46,7 +45,7 @@
 							<h3>Current Team:</h3>
 							<div ng-repeat="team in thisTeam" class="entity currentEntity">
 								<div id="team{{team.id}}">
-									<div class="currentIcon"><i title="#1 Team" class="fa fa-trophy"></i></div>
+									<div class="currentIcon"><i title="#1 Team" class="fa fa-trophy fa-lg"></i></div>
 									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
@@ -59,8 +58,8 @@
 								<div ng-repeat="team in otherTeams" class="entity otherEntity">
 									<div id="team{{team.id}}">
 										<div class="interact">
-											<i title="Make Primary Team" class="fa fa-trophy"></i>
-											<i title="Delete This Team" class="fa fa-trash"></i>
+											<i title="Make Primary Team" class="fa fa-trophy fa-lg"></i>
+											<i title="Delete This Team" class="fa fa-trash fa-lg"></i>
 										</div>
 										<h4>{{team.name}}</h4>
 										<p>{{team.description}}</p>
@@ -73,7 +72,7 @@
 							<h3>Current Project:</h3>
 							<div ng-repeat="proj in currProj" class="entity currentEntity">
 								<div id="proj{{proj.id}}">
-									<div class="currentIcon"><i title="#1 Project" class="fa fa-trophy"></i></div>
+									<div class="currentIcon"><i title="#1 Project" class="fa fa-trophy fa-lg"></i></div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
@@ -85,8 +84,8 @@
 							<div ng-repeat="proj in otherProjs" class="entity otherEntity">
 								<div id="proj{{proj.id}}">
 									<div class="interact">
-										<i title="Make Primary Project" class="fa fa-trophy"></i>
-										<i title="Delete This Project" class="fa fa-trash"></i>
+										<i title="Make Primary Project" class="fa fa-trophy fa-lg"></i>
+										<i title="Delete This Project" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
@@ -99,9 +98,9 @@
 							<div ng-repeat="system in allSystems" class="entity currentEntity">
 								<div id="sys{{system.id}}" class="systemEntity">
 									<div class="interact">
-										<i title="Attach Requirements" class="fa fa-rocket"></i>
-										<i title="Add An Entry" class="fa fa-plus-square"></i>
-										<i title="Delete This System" class="fa fa-trash"></i>
+										<i title="Attach Requirements" class="fa fa-rocket fa-lg"></i>
+										<i title="Add An Entry" class="fa fa-plus-square fa-lg"></i>
+										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<div>
 										<h4>{{system.title}}</h4>
@@ -116,7 +115,7 @@
 							<div ng-repeat="requirement in allRequirements" class="entity currentEntity">
 								<div id="req{{requirement.id}}">
 									<div class="interact">
-										<i title="Delete This System" class="fa fa-trash"></i>
+										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{requirement.name}}</h4>
 									<p>{{requirement.description}}</p>
@@ -129,7 +128,7 @@
 							<div ng-repeat="variable in allVariables" class="entity currentEntity">
 								<div id="var{{variable.id}}">
 									<div class="interact">
-										<i title="Delete This System" class="fa fa-trash"></i>
+										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>
 									<p>{{variable.description}}</p>
@@ -243,7 +242,7 @@
 					<form>
 						<div class="form-group">
 							<label for="systemParentSet">Parent System</label>
-							<select id="systemParentSet" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
+							<select id="systemParentSet" class="form-control">
 							</select>
 							<label for="systemTitleSet">Title</label>
 							<input id="systemTitleSet" type="text" class="form-control" placeholder="Title"/>
@@ -335,7 +334,7 @@
 						</tbody>
 					</table>
 				</div>
-				<div id="entryLists" class="op entryop">
+				<div id="entryLists" class="op">
 					<h3>Current Entries:</h3>
 					<div id="currEntryList">
 					</div>

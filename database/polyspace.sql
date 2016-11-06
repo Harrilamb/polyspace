@@ -206,6 +206,13 @@ create unique index XPK_USER_TYPE on USER_TYPE
    CODE
 );
 
+INSERT INTO `user_type` (`CODE`, `NAME`, `COMMENT`) VALUES
+(1, 'guest', 'lowest privileges, can only view certain entities and details.'),
+(2, 'professor', 'minimum privileges, cannot edit projects but has certain tools specifically for them'),
+(3, 'student', 'standard user type for this app, given limited creation and editing abilities'),
+(4, 'teamlead', 'higher privileges such as changing projects and systems and deleting entities'),
+(5, 'manager', 'max privileges to manipulate entities and control projects'),
+(6, 'sysadmin', 'this is harry');
 
 create table ENTRY
 (
@@ -289,6 +296,13 @@ create unique index XPK_ENTRY_STATUS on ENTRY_STATUS
 (
    CODE
 );
+
+INSERT INTO `entry_status` (`CODE`, `NAME`, `COMMENT`) VALUES
+(1, 'New', 'Entry has just been created, no operations have been performed on it yet.'),
+(2, 'PreStage', 'The step before being staged and voted on. Usually minimal checking at this point.'),
+(3, 'Staged', 'Full voting cycle, all checks performed at this point.'),
+(4, 'Passed', 'The entry passed inspection at the staging area and is an approved design.'),
+(5, 'Failed', 'The entry failed inspection at the staging area and is not an approved design.');
 
 create table REQUIREMENT
 (
@@ -548,6 +562,10 @@ create unique index XPK_JV_THROUGHPUT on JV_THROUGHPUT
    CODE
 );
 
+INSERT INTO `jv_throughput` (`CODE`, `NAME`, `COMMENT`) VALUES
+(1, 'input', 'Variable is passed into the entity in order to calculate outputs.'),
+(2, 'output', 'Variable is passed out of the entity as a resulting value from the inputs.');
+
 create table JOINT_REQUIREMENT_SYSTEM
 (
 	ID					BIGINT not null auto_increment PRIMARY KEY,
@@ -620,6 +638,10 @@ create unique index XPK_JR_IMPORTANCE on JR_IMPORTANCE
 (
    CODE
 );
+
+INSERT INTO `jr_importance` (`CODE`, `NAME`, `COMMENT`) VALUES
+(1, 'Necessary', 'Cannot be ignored, must be passed for entry to be accepted.'),
+(2, 'Desirement', 'A trait desired by the customer, but not required for entry to pass.');
 
 create table JOINT_VARS_ENTRY
 (
@@ -810,3 +832,7 @@ create unique index XPK_JUT_POSITION on JUT_POSITION
 (
    CODE
 );
+
+INSERT INTO `jut_position` (`CODE`, `NAME`, `COMMENT`) VALUES
+(1, 'Team Lead', 'The person in charge of the team, and every standard level team member in said team.'),
+(2, 'Team Member', 'Standard team member, limited access to site features.');

@@ -26,6 +26,8 @@
 				<ul id="userbar"><li><a  id="usersname" class="btn-link profile" href="profile.php"></a></li><li> | </li><li><a id="logout" class="btn-link logout">Logout</a></li></ul>
 			</div>
 		</div>
+	</div>
+	<div class="container">
 		<div class="row">
 			<div class="col-xs-4 col-sm-3 col-md-2 col-lg-2">
 				<div>

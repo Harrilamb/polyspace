@@ -9,8 +9,10 @@ require.config({
 	baseUrl: '../js',
 	// ... config ...
 	paths: {
-		colorbox: '../bower_components/jquery-colorbox/jquery.colorbox-min'
+		colorbox: '../bower_components/jquery-colorbox/jquery.colorbox-min',
+		sweetalert: '../bower_components/sweetalert/dist/sweetalert.min'
 	}
 	// ... config ...
 });
 requirejs(['colorbox'],function (colorbox) {});
+requirejs(['sweetalert'],function (sweetalert) {});

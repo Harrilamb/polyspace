@@ -238,6 +238,10 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 	display:block;
 }
 
+.entryop{
+	display:none;
+}
+
 .sysReqSelect,.entryVarSelect,.systemEntitySelect{
 	background-color:#FFFF00;
 }
@@ -268,4 +272,13 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 
 .fa-rocket:hover{
 	color:orange;
+}
+
+.entryStep2{
+	width:500px;
+	height:250px;
+}
+
+.systemEntity:hover{
+	background-color:#ADD8E6;
 }
