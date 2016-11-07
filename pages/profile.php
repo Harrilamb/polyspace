@@ -45,7 +45,9 @@
 							<h3>Current Team:</h3>
 							<div ng-repeat="team in thisTeam" class="entity currentEntity">
 								<div id="team{{team.id}}">
-									<div class="currentIcon"><i title="#1 Team" class="fa fa-trophy fa-lg"></i></div>
+									<div class="currentIcon">
+										<i title="#1 Team" class="fa fa-trophy fa-lg"></i>
+									</div>
 									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
 									<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
@@ -59,6 +61,7 @@
 									<div id="team{{team.id}}">
 										<div class="interact">
 											<i title="Make Primary Team" class="fa fa-trophy fa-lg"></i>
+											<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 											<i title="Delete This Team" class="fa fa-trash fa-lg"></i>
 										</div>
 										<h4>{{team.name}}</h4>
@@ -85,6 +88,7 @@
 								<div id="proj{{proj.id}}">
 									<div class="interact">
 										<i title="Make Primary Project" class="fa fa-trophy fa-lg"></i>
+										<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 										<i title="Delete This Project" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{proj.title}}</h4>
@@ -100,6 +104,7 @@
 									<div class="interact">
 										<i title="Attach Requirements" class="fa fa-rocket fa-lg"></i>
 										<i title="Add An Entry" class="fa fa-plus-square fa-lg"></i>
+										<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<div>
@@ -115,6 +120,7 @@
 							<div ng-repeat="requirement in allRequirements" class="entity currentEntity">
 								<div id="req{{requirement.id}}">
 									<div class="interact">
+										<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{requirement.name}}</h4>
@@ -128,6 +134,7 @@
 							<div ng-repeat="variable in allVariables" class="entity currentEntity">
 								<div id="var{{variable.id}}">
 									<div class="interact">
+										<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
 									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>

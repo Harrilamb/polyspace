@@ -5,6 +5,37 @@ dark blue:#1A2930
 gold:#F7CE3E
 */
 
+/*Altitude Chart Color Scheme
+JET:#343434
+DEEP KOAMARU:#2F3061
+EGYPTIAN BLUE:#0E34A0
+PURPLE NAVY:#5F5980
+GAINSBORO:#DFDFDF
+*/
+
+/*Space Color Scheme
+METALLIC SUNBURST: #A57136
+OUTER SPACE: #444554
+CADET BLUE: #56A3A6
+DARK MIDNIGHT BLUE: #043565
+SPACE CADET: #153B50
+*/
+
+/*Cloud Split Color Scheme
+DARK CERULEAN: #064789
+QUEEN BLUE: #427AA1
+ANTI-FLASH WHITE:#EBF2FA
+MAXIMUM GREEN:#679436
+LIMERICK: #A5BE00
+*/
+
+/*Accented Basic Color Scheme
+INTERNATIONAL ORANGE (ENGINEERING): #B80C09
+DARK IMPERIAL BLUE: #0B4F6C
+CYAN (PROCESS): #01BAEF
+GHOST WHITE: #FBFBFF
+RICH BLACK (FOGRA29): #040F16
+*/
 
 textarea{
 	resize:none;
@@ -34,7 +65,11 @@ textarea{
 
 .subinput{padding-top:10px;height:50px;width:100%;margin:0 auto;display:block;float:left;}
 
-.buttons{float:right;display:inline-block;}
+.buttons{
+	float:right;
+	display:inline-block;
+	margin-top:20px;
+}
 
 .subinput a{margin:5px 5px 5px 5px;}
 .subinput p{margin-right:2.5%;}
@@ -274,6 +309,10 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 	color:orange;
 }
 
+.fa-pencil-square-o:hover{
+	color:blue;
+}
+
 .entryStep2{
 	width:500px;
 	height:250px;
@@ -281,4 +320,8 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 
 .systemEntity:hover{
 	background-color:#ADD8E6;
+}
+
+label{
+	margin-top:5px;
 }

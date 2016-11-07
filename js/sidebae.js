@@ -283,6 +283,9 @@ $(document).ready(function(){
 				if(JSON.parse(msg).success==1){
 					entryBuilder.entryid=JSON.parse(msg).entryid;
 					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
+					$("#entrySysSelect").val("none");
+					$("#entryNameSet").val("");
+					$("#entryDescSet").val("");
 					entryBuilder.entryProcess(system,2);
 				}else{
 					console.log(msg);
@@ -940,7 +943,7 @@ $(document).ready(function(){
 	  $.colorbox.resize({width:"500px",height:"400px"});
 	  	
 		$("#cancelVarAdd").click(function(){
-			alert('yeup');
+			entryBuilder.entryProcess(entryBuilder.systemid,2);
 		});
 	});
 });

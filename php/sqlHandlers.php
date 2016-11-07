@@ -242,13 +242,23 @@
 		global $conn;
 		global $me;
 		global $org;
-		
-		if($current){
-			$sql="SELECT p.id pi, p.title pt, p.description pd, ow.username uu FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)";
-		}else{
-			$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND p.id NOT IN (SELECT t.project_id FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.userid=".$me." AND jut.current=1)";
+
+		$sql="SELECT p.id pi, p.title pt, p.description pd, ow.username uu, t.id ti, ow.id ui FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)";
+		$result=$conn->query($sql);
+		$outc=array();
+		$i=0;
+		while($rs=$result->fetch_array(MYSQLI_ASSOC)){
+			$outc[$i]=$rs;
+			$i++;
 		}
-		
+		//return sizeOf($outc);
+		if($current===0){
+			if(sizeOf($outc)>0){
+				$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu, ow.id ui FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND p.id NOT IN (SELECT t.project_id FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.userid=".$me." AND jut.current=1)";
+			}else{
+				$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu, ow.id ui FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1";
+			}
+		}
 		$result=$conn->query($sql);
 		if($result){
 			$outp = "";
@@ -258,7 +268,7 @@
 				$outp .= '"title":"'   . $rs["pt"]        . '",';
 				$outp .= '"description":"'   . $rs["pd"]        . '",';
 				$outp .= '"owner":"'   . $rs["uu"]        . '",';
-				$outp .= '"ownerid":"'. $rs["po"]     . '"}'; 
+				$outp .= '"ownerid":"'. $rs["ui"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
 			$conn->close();
@@ -267,12 +277,52 @@
 		}
 	}
 	
+	//$a = array();
 	function findSystems(){
 		global $conn;
 		global $me;
 		global $org;
 		
-		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1))";
+		/*$data = array();
+		$index = array();
+		$sql="SELECT s.id si, s.parent_id sp, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
+		$result = $conn->query($sql);
+		while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+			$id = $rs["si"];
+			$parent_id = $rs["sp"] === NULL ? "NULL" : $rs["sp"];
+			$data[$id] = $rs;
+			$index[$parent_id][] = $id;
+		}*/
+		/*
+		 * Recursive top-down tree traversal example:
+		 * Indent and print child nodes
+		 */
+		/*
+		function display_child_nodes($parent_id, $level,$index,$data,$retarr)
+		{
+			$string="";
+			$arr=array();
+			$parent_id = $parent_id === NULL ? 0 : $parent_id;
+			if (isset($index[$parent_id])) {
+				foreach ($index[$parent_id] as $id) {*/
+					//$retarr[sizeOf($retarr)]["tier"]=$level;
+					//$data[$id]["lev"]=str_repeat("-", $level);
+					//$retarr[sizeOf($retarr)]=str_repeat("-", $level);
+					//$retarr[sizeOf($retarr)-1]["info"]= $data[$id]["st"];
+					//array_push($arr,$level);
+					//array_push($arr,$data[$id]["st"]);
+					/*$string.=str_repeat("-", $level).$data[$id]["st"];
+					$string.=display_child_nodes($id, $level + 1,$index,$data,$retarr);
+				}
+				echo $string;
+				//echo json_encode($arr);
+			}			
+			
+		}
+		return display_child_nodes(NULL,0,$index,$data,array());*/
+		
+		
+		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
 		
 		$result = $conn->query($sql);
 		if($result){

@@ -37,6 +37,7 @@ app.factory('otherProjs',['$http',function($http){
 app.factory('allSystems',['$http',function($http){
 	return	$http.get("../php/sqlHandlers.php?action=all_systems")
 			.success(function(data) {
+				console.log(data);
 				return data;
 			})
 			.error(function(err) {
