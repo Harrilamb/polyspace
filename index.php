@@ -31,7 +31,7 @@
 				</form>
 				<div class="subinput">
 					<p class="uibutton buttons ascend">Ascend</p>
-					<a class="buttons" href="pages/signup.php">Join Us</a>
+					<a id="joinBtn" class="buttons" href="pages/signup.php">Join Us</a>
 				</div>
 			</div>
 		</div>

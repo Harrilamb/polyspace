@@ -37,6 +37,10 @@ GHOST WHITE: #FBFBFF
 RICH BLACK (FOGRA29): #040F16
 */
 
+#joinBtn{
+	margin:15px 10px;
+}
+
 textarea{
 	resize:none;
 }
@@ -75,11 +79,11 @@ textarea{
 .subinput p{margin-right:2.5%;}
 
 
-a {color:#858e98;
+/*a {color:#858e98;
 	text-decoration:none;
-	}
-a:hover {color:#555;}
-a:active, a:hover, a:link, a:visited{text-decoration:none;}
+	}*/
+/*a:hover {color:#555;}*/
+/*a:active, a:hover, a:link, a:visited{text-decoration:none;}*/
 
 .uibutton {
    margin:10px 0;
@@ -249,10 +253,6 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 	padding-left:5px;
 }
 
-#requirementDynamic{
-	
-}
-
 .infoList{
 	padding-left:25px;
 }
@@ -324,4 +324,39 @@ a:active, a:hover, a:link, a:visited{text-decoration:none;}
 
 label{
 	margin-top:5px;
+}
+
+.sysList{
+	height:75vh;
+	width:98%;
+	padding-right:2%;
+	overflow:scroll;
+}
+
+.infoBlock{
+	text-align:center;
+}
+
+.infoList{
+	list-style:none;
+	width:100%;
+}
+
+.infoList li{
+	display:inline-block;
+	padding:5px 5px;
+	margin:.1% .25%;
+	border:1px solid black;
+	width:15%;
+	min-width: 100px;
+	cursor:pointer;
+}
+
+.switchop:hover{
+	background-color:#f3f3f3;
+}
+
+#userTypeInfo{
+	display:block;
+	margin-top: 50px;
 }

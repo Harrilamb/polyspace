@@ -406,6 +406,7 @@ create table SYSTEM
    LFT 					INT not null,
    RGT 					INT not null,
    PARENT_ID			BIGINT,
+   TIER					BIGINT default 0;
    PROJECT_ID           BIGINT,
    TITLE	            VARCHAR(60) not null,
    DESCRIPTION	        VARCHAR(2000),

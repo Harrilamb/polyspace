@@ -80,6 +80,10 @@
 		echo removeRecord($_POST["varid"],"variable");
 	}elseif($_POST["action"]=="remove_entry"){
 		echo removeRecord($_POST["entryid"],"entry");
+	}elseif($_POST["action"]=="find_systems"){
+		echo findSystems(true);
+	}elseif($_POST["action"]=="set_student"){
+		echo setStudent($_POST["code"]);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -89,7 +93,7 @@
 	}elseif($_GET["action"]=="other_projects"){
 		echo findProjects(0);
 	}elseif($_GET["action"]=="all_systems"){
-		echo findSystems();
+		echo findSystems(false);
 	}elseif($_GET["action"]=="all_requirements"){
 		echo findRequirements();
 	}elseif($_GET["action"]=="all_variables"){
@@ -153,7 +157,7 @@
 			$ismaster=1;
 		}
 		
-		$sql="INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$parent."',(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$ismaster.",".$me.",NULL)";
+		$sql="INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,TIER,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$parent."',(SELECT s.tier FROM system s WHERE id=".$parent.")+1,(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$ismaster.",".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -277,67 +281,78 @@
 		}
 	}
 	
-	//$a = array();
-	function findSystems(){
+	function findSystems($html){
 		global $conn;
 		global $me;
 		global $org;
-		
-		/*$data = array();
-		$index = array();
-		$sql="SELECT s.id si, s.parent_id sp, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
-		$result = $conn->query($sql);
-		while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
-			$id = $rs["si"];
-			$parent_id = $rs["sp"] === NULL ? "NULL" : $rs["sp"];
-			$data[$id] = $rs;
-			$index[$parent_id][] = $id;
-		}*/
-		/*
-		 * Recursive top-down tree traversal example:
-		 * Indent and print child nodes
-		 */
-		/*
-		function display_child_nodes($parent_id, $level,$index,$data,$retarr)
-		{
-			$string="";
-			$arr=array();
-			$parent_id = $parent_id === NULL ? 0 : $parent_id;
-			if (isset($index[$parent_id])) {
-				foreach ($index[$parent_id] as $id) {*/
-					//$retarr[sizeOf($retarr)]["tier"]=$level;
-					//$data[$id]["lev"]=str_repeat("-", $level);
-					//$retarr[sizeOf($retarr)]=str_repeat("-", $level);
-					//$retarr[sizeOf($retarr)-1]["info"]= $data[$id]["st"];
-					//array_push($arr,$level);
-					//array_push($arr,$data[$id]["st"]);
-					/*$string.=str_repeat("-", $level).$data[$id]["st"];
-					$string.=display_child_nodes($id, $level + 1,$index,$data,$retarr);
-				}
-				echo $string;
-				//echo json_encode($arr);
-			}			
-			
-		}
-		return display_child_nodes(NULL,0,$index,$data,array());*/
-		
-		
-		$sql = "SELECT s.id si, s.title st, s.description sd, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
-		
-		$result = $conn->query($sql);
-		if($result){
-			$outp = "";
-			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
-				if ($outp != "") {$outp .= ",";}
-				$outp .= '{"id":"'  . $rs["si"] . '",';
-				$outp .= '"title":"'   . $rs["st"]        . '",';
-				$outp .= '"owner":"'   . $rs["uu"]        . '",';
-				$outp .= '"description":"'. $rs["sd"]     . '"}'; 
+		if($html==true){
+			$data = array();
+			$index = array();
+			$sql="SELECT s.id si, s.parent_id sp, s.title st, s.description sd, s.tier stier, u.username uu, u.id ui FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
+			$result = $conn->query($sql);
+			while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				$id = $rs["si"];
+				$parent_id = $rs["sp"] === NULL ? "NULL" : $rs["sp"];
+				$data[$id] = $rs;
+				$index[$parent_id][] = $id;
 			}
-			$outp ='{"records":['.$outp.']}';
-			$conn->close();
+			
+			/*
+			 * Recursive top-down tree traversal example:
+			 * Indent and print child nodes
+			 */
+		
+			function display_child_nodes($parent_id, $level,$index,$data)
+			{
+				$string="";
+				$parent_id = $parent_id === NULL ? 0 : $parent_id;
+				if (isset($index[$parent_id])) {
+					foreach ($index[$parent_id] as $id) {			
+						$d = $data[$id];
+						$string.="<div class='entity currentEntity' style='margin-left:".$d['stier']."0px;'>
+									<div id='sys".$d['si']."' class='systemEntity'>
+										<div class='interact'>
+											<i title='Attach Requirements' class='fa fa-rocket fa-lg'></i>
+											<i title='Add An Entry' class='fa fa-plus-square fa-lg'></i>
+											<i title='Change Team Info' class='fa fa-pencil-square-o fa-lg'></i>
+											<i title='Delete This System' class='fa fa-trash fa-lg'></i>
+										</div>
+										<div>
+											<h4>".$d['st']."</h4>
+											<p>".$d['sd']."</p>
+											<a class='btn-link' href='profile.php?glimpse=".$d['ui']."'>".$d['uu']."</a>
+										</div>
+									</div>
+								</div>";
 
-			echo $outp;
+						$string.=display_child_nodes($id, $level + 1,$index,$data);
+					}
+					return $string;
+				}			
+			
+			}
+			return display_child_nodes(NULL,0,$index,$data);
+	}else{
+		
+			$sql = "SELECT s.id si, s.title st, s.description sd, s.tier stier, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.parent_id,s.id ORDER BY s.parent_id,s.tier";
+		
+			$result = $conn->query($sql);
+			if($result){
+				$outp = "";
+				while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+					if ($outp != "") {$outp .= ",";}
+					$outp .= '{"id":"'  . $rs["si"] . '",';
+					$outp .= '"title":"'   . $rs["st"]        . '",';
+					$outp .= '"owner":"'   . $rs["uu"]        . '",';
+					$outp .= '"tier":"'   . $rs["stier"]        . '",';
+					$outp .= '"description":"'. $rs["sd"]     . '"}'; 
+				}
+			
+				$outp ='{"records":['.$outp.']}';
+				$conn->close();
+
+				echo $outp;
+			}
 		}
 	}
 	
@@ -694,6 +709,25 @@
 			return 1;
 		}else{
 			return $conn->error;
+		}
+	}
+	
+	function setStudent($code){
+		global $conn;
+		global $me;
+		global $org;
+		$pswd=password_hash(htmlspecialchars("260307"),PASSWORD_DEFAULT);
+		if(password_verify($code,$pswd)==1){
+			$sql="UPDATE USER SET USER_TYPE_CODE=(SELECT CODE FROM USER_TYPE WHERE NAME='student') WHERE ID=".$me;
+			$result = $conn->query($sql);
+	
+			if($result){
+				return 1;
+			}else{
+				return $conn->error;
+			}
+		}else{
+			return 0;
 		}
 	}
 ?>

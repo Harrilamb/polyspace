@@ -1,5 +1,5 @@
 angular.module('userInfoApp.controllers',[]).
-controller('setTeams',['$scope','currTeam','otherTeams','currProj','otherProjs','allSystems','allRequirements', 'allVariables', function($scope, currTeam, otherTeams, currProj, otherProjs, allSystems, allRequirements, allVariables){
+controller('setTeams',['$scope','currTeam','otherTeams','currProj','otherProjs'/*,'allSystems'*/,'allRequirements', 'allVariables', function($scope, currTeam, otherTeams, currProj, otherProjs/*, allSystems*/, allRequirements, allVariables){
 	currTeam.success(function(data){
 		$scope.thisTeam = data.records;
 	});
@@ -12,9 +12,9 @@ controller('setTeams',['$scope','currTeam','otherTeams','currProj','otherProjs',
 	otherProjs.success(function(data){
 		$scope.otherProjs = data.records;
 	});
-	allSystems.success(function(data){
+	/*allSystems.success(function(data){
 		$scope.allSystems = data.records;
-	});
+	});*/
 	allRequirements.success(function(data){
 		$scope.allRequirements = data.records;
 	});

@@ -34,7 +34,7 @@ app.factory('otherProjs',['$http',function($http){
 				return err;
 			});
 }]);
-app.factory('allSystems',['$http',function($http){
+/*app.factory('allSystems',['$http',function($http){
 	return	$http.get("../php/sqlHandlers.php?action=all_systems")
 			.success(function(data) {
 				console.log(data);
@@ -43,7 +43,7 @@ app.factory('allSystems',['$http',function($http){
 			.error(function(err) {
 				return err;
 			});
-}]);
+}]);*/
 app.factory('allRequirements',['$http',function($http){
 	return	$http.get("../php/sqlHandlers.php?action=all_requirements")
 			.success(function(data) {
