@@ -1,6 +1,6 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["userid"]) || empty($_SESSION["userid"])){
+	if(!isset($_SESSION["userid"]) || empty($_SESSION["userid"]) || !isset($_SESSION["privilege"])){
 		header("location:../index.php");
 	}
 ?>
@@ -11,8 +11,6 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script data-main="../js/main.js" src="../js/require.js"></script>
-	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
-	<script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="../css/main.css">
 </head>
 
@@ -24,11 +22,11 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 infoBlock">
 				<strong><p>Build a Spaceship</p></strong>
 				<ul class="infoList">
-					<li class="switchop"><a class="btn-link">Team</a></li>
-					<li class="switchop"><a class="btn-link">Project</a></li>
-					<li class="switchop"><a class="btn-link">System</a></li>
-					<li class="switchop"><a class="btn-link">Requirement</a></li>
-					<li class="switchop"><a class="btn-link">Variable</a></li>
+					<li class="switchop">Team</li>
+					<li class="switchop">Project</li>
+					<li class="switchop">System</li>
+					<li class="switchop">Requirement</li>
+					<li class="switchop">Variable</li>
 				</ul>
 			</div>
 		</div>
@@ -133,7 +131,7 @@
 					<form>
 						<h3 id="createEntryTitle">Create An Entry</h3>
 						<div id="entryStep1Perm">
-							<div id="entryStep1" class="form-group">
+							<div id="entryStep1" class="form-group writepriv">
 								<h4>Step 1 of 3</h4>
 								<label for="entrySysSelect">System</label>
 								<select id="entrySysSelect" class="form-control systemSelect"></select>
@@ -167,7 +165,7 @@
 							</div>
 						</div>
 						<div id="entryStep3Perm">
-							<div id="entryStep3" class="form-group">
+							<div id="entryStep3" class="form-group writepriv">
 								<h4>Step 3 of 3</h4>
 								<div>
 									<h5>Stage Entry</h5>
@@ -187,7 +185,7 @@
 			</div>
 			<!--Start right column-->
 			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-				<div class="op teamop currop" width="50%">
+				<div class="op writepriv teamop currop" width="50%">
 					<h3>Add Team</h3>
 					<form>
 						<div class="form-group">
@@ -207,7 +205,7 @@
 					</div>
 					<button class="uibutton buttons addTeam">Add</button>
 				</div>
-				<div class="op projop" width="50%">
+				<div class="op writepriv projop" width="50%">
 					<h3>Add Project</h3>
 					<form>
 						<div class="form-group">
@@ -227,7 +225,7 @@
 					</div>
 					<button class="uibutton buttons addProject">Add</button>
 				</div>
-				<div class="op sysop" width="50%">
+				<div class="op writepriv sysop" width="50%">
 					<h3>Add System</h3>
 					<form>
 						<div class="form-group">
@@ -250,7 +248,7 @@
 					</div>
 					<button class="uibutton buttons addSystem">Add</button>
 				</div>
-				<div class="op reqop" width="50%">
+				<div class="op writepriv reqop" width="50%">
 					<h3>Add Requirement</h3>
 					<form>
 						<div class="form-group">
@@ -282,7 +280,7 @@
 					</div>
 					<button class="uibutton buttons addRequirement">Add</button>
 				</div>
-				<div class="op varop" width="50%">
+				<div class="op writepriv varop" width="50%">
 					<h3>Add Variable</h3>
 					<form>
 						<div class="form-group">

@@ -11,96 +11,99 @@ $(document).ready(function(){
 				}
 			})
 			.done(function( msg ) {
+				$(".sysList").empty();
+				$(".sysList").append("<h3>All Systems:</h3>");
+				
 				if(msg){
 
 //Reload list of systems in view
-					$(".sysList").empty();
-					$(".sysList").append("<h3>All Systems:</h3>");
 					$(".sysList").append(msg);
 
 //Call reload of system dropdowns
 					entryBuilder.loadSystems();
-
-//Handle addition of an entry
-					$(".fa-plus-square").click(function(){
-						var sysid = utilities.getNum($(this).parents().eq(1).attr("id"));
-						entryBuilder.entryProcess(sysid,1);
-					});
-					
-//Handle the clicking of a system to show entries attached to it
-					$(".systemEntity").click(function(){
-						$(".systemEntitySelect").removeClass("systemEntitySelect");
-						$(this).addClass("systemEntitySelect");
-						$(".currop").removeClass("currop");
-						$(this).parents().eq(1).addClass("currop");
-						$("#entryLists").addClass("currop");
-						var sysid = parseInt(utilities.getNum($(this).attr("id")));
-						entryBuilder.loadEntries(sysid);
-						$("#entryLists").addClass("currop");
-					});
-	
-					$(".systemEntity").click(function(){
-						$(this).children(".children").toggle();
-					});
-	
-				   $(".systemEntity .interact i").click(function(e) {
-						e.stopPropagation();
-				   });
-//Handle deletion of an entity
-					$(".fa-trash").click(function(){
-						var adult = $(this).parents().eq(1).attr("id");
-						var entityid = utilities.getNum(adult);
-						if($(this).parents().eq(2).hasClass("currentEntity")===false){
-							if(adult.indexOf("team")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this team?",function(){counselor.removeTeam(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else if(adult.indexOf("proj")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this project?",function(){counselor.removeProject(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else if(adult.indexOf("entry")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this entry?",function(){counselor.removeEntry(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else{
-								sweetAlert("I don't know what icon you clicked o_0");
-							}
-						}else{
-							if(adult.indexOf("sys")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this system?",function(){counselor.removeSystem(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else if(adult.indexOf("req")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this requirement?",function(){counselor.removeRequirement(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else if(adult.indexOf("var")!=-1){
-								utilities.confirmAction("Are you sure you want to delete this variable?",function(){counselor.removeVariable(entityid);},"Yes, delete it!","No, cancel plox!","red");
-							}else{
-								sweetAlert("I don't know what icon you clicked o_0");
-							}
-						}
-					});
-
-					$(".fa-trophy").click(function(){
-						var adult = $(this).parents().eq(1).attr("id");
-						if($(this).parents().eq(2).hasClass("currentEntity")===false){
-							var entityid = utilities.getNum(adult);
-							if(adult.indexOf("team")!=-1){
-								utilities.confirmAction("Are you sure you want to promote this team?",function(){counselor.switchTeams(entityid);},"Yes, promote it!","No, cancel plox!","green");
-							}else if(adult.indexOf("proj")!=-1){
-								utilities.confirmAction("Are you sure you want to promote this project?",function(){counselor.switchProjects(entityid);},"Yes, promote it!","No cancel plox!","green");
-							}else{
-								console.log("I don't know what icon you clicked o_0");
-							}
-						}
-					});
-
-//Switch to system definition tool
-					$(".fa-rocket").click(function(){
-						var sysid = parseInt(utilities.getNum($(this).parents().eq(1).attr("id")));
-						systemBuilder.system = sysid;
-						systemBuilder.dataUpdate();
-						$(".currop").removeClass("currop");
-						$(".sysReqOp,.sysList").addClass("currop");
-						$(".systemEntitySelect").removeClass("systemEntitySelect");
-						$(this).parents().eq(1).addClass("systemEntitySelect");
-					});
 				}else{
 					console.log(msg);
 					sweetAlert("Sorry something went wrong.");
 				};
+				
+//Handle addition of an entry
+				$(".fa-plus-square").click(function(){
+					var sysid = utilities.getNum($(this).parents().eq(1).attr("id"));
+					entryBuilder.entryProcess(sysid,1);
+				});
+				
+//Handle the clicking of a system to show entries attached to it
+				$(".systemEntity").click(function(){
+					$(".systemEntitySelect").removeClass("systemEntitySelect");
+					$(this).addClass("systemEntitySelect");
+					$(".currop").removeClass("currop");
+					$(this).parents().eq(1).addClass("currop");
+					$("#entryLists").addClass("currop");
+					var sysid = parseInt(utilities.getNum($(this).attr("id")));
+					entryBuilder.loadEntries(sysid);
+					$("#entryLists").addClass("currop");
+				});
+
+				$(".systemEntity").click(function(){
+					$(this).children(".children").toggle();
+				});
+
+			   $(".systemEntity .interact i").click(function(e) {
+					e.stopPropagation();
+			   });
+//Handle deletion of an entity
+				$(".fa-trash").click(function(){
+					var adult = $(this).parents().eq(1).attr("id");
+					var entityid = utilities.getNum(adult);
+					if($(this).parents().eq(2).hasClass("currentEntity")===false){
+						if(adult.indexOf("team")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this team?",function(){counselor.removeTeam(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else if(adult.indexOf("proj")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this project?",function(){counselor.removeProject(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else if(adult.indexOf("entry")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this entry?",function(){counselor.removeEntry(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else{
+							sweetAlert("I don't know what icon you clicked o_0");
+						}
+					}else{
+						if(adult.indexOf("sys")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this system?",function(){counselor.removeSystem(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else if(adult.indexOf("req")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this requirement?",function(){counselor.removeRequirement(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else if(adult.indexOf("var")!=-1){
+							utilities.confirmAction("Are you sure you want to delete this variable?",function(){counselor.removeVariable(entityid);},"Yes, delete it!","No, cancel plox!","red");
+						}else{
+							sweetAlert("I don't know what icon you clicked o_0");
+						}
+					}
+				});
+
+				$(".fa-trophy").click(function(){
+					var adult = $(this).parents().eq(1).attr("id");
+					if($(this).parents().eq(2).hasClass("currentEntity")===false){
+						var entityid = utilities.getNum(adult);
+						if(adult.indexOf("team")!=-1){
+							utilities.confirmAction("Are you sure you want to promote this team?",function(){counselor.switchTeams(entityid);},"Yes, promote it!","No, cancel plox!","green");
+						}else if(adult.indexOf("proj")!=-1){
+							utilities.confirmAction("Are you sure you want to promote this project?",function(){counselor.switchProjects(entityid);},"Yes, promote it!","No cancel plox!","green");
+						}else{
+							console.log("I don't know what icon you clicked o_0");
+						}
+					}
+				});
+
+//Switch to system definition tool
+				$(".fa-rocket").click(function(){
+					var sysid = parseInt(utilities.getNum($(this).parents().eq(1).attr("id")));
+					systemBuilder.system = sysid;
+					systemBuilder.dataUpdate();
+					$(".currop").removeClass("currop");
+					$(".sysReqOp,.sysList").addClass("currop");
+					$(".systemEntitySelect").removeClass("systemEntitySelect");
+					$(this).parents().eq(1).addClass("systemEntitySelect");
+				});
+				
+				security.lockdownView();
 			});
 		},
 		"dataUpdate":function(sysid){
@@ -237,11 +240,19 @@ $(document).ready(function(){
 			for(var varx in entryBuilder.jointVars){
 				var thisVar = entryBuilder.jointVars[varx];
 				if(thisVar.joinName.toLowerCase()=="input"){
-					var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' id='fuckme' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					if(security.edit===true){
+						var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					}else{
+						var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><p>"+thisVar.joinValue+"</p><i>"+thisVar.units+"</i></div>");
+					}
 					inList[inList.length]=thisVar;
 					thing.appendTo("#"+target+" .inputList");
 				}else if(thisVar.joinName.toLowerCase()=="output"){
-					var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					if(security.edit===true){
+						var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
+					}else{
+						var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><p>"+thisVar.joinValue+"</p><i>"+thisVar.units+"</i></div>");
+					}
 					outList[outList.length]=thisVar;
 					thing.appendTo("#"+target+" .outputList");
 				}
@@ -606,6 +617,8 @@ $(document).ready(function(){
 	
 //Object to store userful methods
 	var utilities = { 
+		"host":window.location.hostname,
+		"page":window.location.href.split("/")[window.location.href.split("/").length-1],
 //Extract number from a string, used to get db ids from html element ids
 		"getNum": function(string){
 			var num = string.replace( /^\D+/g, '');
@@ -650,12 +663,118 @@ $(document).ready(function(){
 				swal("Cancelled", "Okay Okay I didn't do it....jeez", "error");
 			  }
 			});
+		},
+		
+		"getURI":function(sParam){
+			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+				sURLVariables = sPageURL.split('&'),
+				sParameterName,
+				i;
+
+			for (i = 0; i < sURLVariables.length; i++) {
+				sParameterName = sURLVariables[i].split('=');
+
+				if (sParameterName[0] === sParam) {
+					return sParameterName[1] === undefined ? true : sParameterName[1];
+				}
+			}
+		}
+	};
+	
+	var security = {
+		"level":undefined,
+		"read":false,
+		"write":false,
+		"remove":false,
+		"edit":false,
+		"setPrivileges": function(){
+			$.ajax({
+		  	method:"POST",
+		  	url:"../php/sqlHandlers.php",
+		  	data: { action: 'set_privileges',
+					entry: entryBuilder.entryid
+				}
+			})
+			.done(function( msg ) {
+				if(msg){
+					security.level=msg;
+					security.setupLevels();
+				}else{
+					console.log(msg);
+					sweetAlert("Something didn't go right, the variable was unable to be created.");
+				}
+			});
+		},
+		"setupLevels":function(){
+			var s = security;
+			switch(security.level){
+				case "guest":
+					s.read=true;
+					s.write=false;
+					s.remove=false;
+					s.edit=false;
+				break;
+				case "student":
+					s.read=true;
+					s.write=true;
+					s.remove=false;
+					s.edit=true;
+				break;
+				case "professor":
+					s.read=true;
+					s.write=true;
+					s.remove=false;
+					s.edit=false;
+				break;
+				case "teamlead":
+					s.read=true;
+					s.write=true;
+					s.remove=true;
+					s.edit=true;
+				break;
+				case "sysadmin":
+					s.read=true;
+					s.write=true;
+					s.remove=true;
+					s.edit=true;
+				break;
+				default:
+					s.read=false;
+					s.write=false;
+					s.remove=false;
+					s.edit=false;
+			}
+			s.lockdownView();
+		},
+		
+		"lockdownView":function(){
+			if(security.read==false){
+				if(utilities.page!="home.php"){
+					sweetAlert("You're not allowed here!");
+					window.location.href="home.php";
+				}
+			}else{
+				if(security.write==false){
+					$(".writepriv").remove();
+					$(".fa-plus-square").remove();
+					$(".fa-rocket").remove();
+					$("#inputVarsAdd,#outputVarsAdd").remove();
+				}
+			
+				if(security.remove==false){
+					$(".fa-trash").remove();
+				}
+			
+				if(security.edit==false){
+					$(".fa-pencil-square-o").remove();
+				}
+			}
 		}
 	};
 
 //Initialize page
+	security.setPrivileges();
 	systemBuilder.findSystems();
-	entryBuilder.loadEntries(0);
 
 //Banner load and actions (link to home, load username)
 	$(function(){$("#headerArea").load("../html/heading-banner.html",

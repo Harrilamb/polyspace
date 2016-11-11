@@ -184,9 +184,22 @@ textarea{
 }
 
 .homehead{
-	background-image:url("../images/rocketstreak.jpg");
-	background-position: 0px 400px;
+	background-image:url("../images/red_earth.jpg");
+	/*ALT1 curved_earth.jpeg*/
+	/*ALT2 rocketstreak.jpg*/
+	background-position: 0px 0px;
+	/*ALT1 0 0*/
+	/*ALT2 0 400*/
 	color:white;
+	/*ALT1     background-repeat: round;
+    			background-size: cover;*/
+	/*ALT2 none */
+	background-repeat: round;
+    background-size: cover;
+    webkit-box-shadow: 0 8px 6px -6px black;
+   -moz-box-shadow: 0 8px 6px -6px black;
+	box-shadow: 0 4px 6px -6px black;
+	border-bottom:1px solid black;
 }
 
 .homehead h1{
@@ -201,6 +214,9 @@ textarea{
 	background-color:white;
 	color:black;
 	padding:4px 0px;
+	border-left:1px solid black;
+	border-bottom:1px solid black;
+	border-bottom-left-radius:4px;
 }
 .systemTab a{
 	cursor:pointer;
@@ -302,15 +318,15 @@ textarea{
 }
 
 .fa-plus-square:hover{
-	color:green;
+	color:#4DBD33;
 }
 
 .fa-rocket:hover{
-	color:orange;
+	color:#FF8000;
 }
 
 .fa-pencil-square-o:hover{
-	color:blue;
+	color:#003EFF;
 }
 
 .entryStep2{
@@ -360,3 +376,9 @@ label{
 	display:block;
 	margin-top: 50px;
 }
+
+.fa{
+	cursor:pointer;
+}
+
+rgba(255,215,0)

@@ -24,11 +24,11 @@ if(password_verify($a,$b)==1){
 	unset($_SESSION["userid"]);
 	unset($_SESSION["username"]);
 	unset($_SESSION["orgid"]);
-	unset($_SESSION["privelege"]);
+	unset($_SESSION["privilege"]);
 	$_SESSION["userid"]=$c;
 	$_SESSION["username"]=$d;
 	$_SESSION["orgid"]=$e;
-	$_SESSION["privelege"]=$f;
+	$_SESSION["privilege"]=$f;
 	echo true;
 }else{
 	echo $c;

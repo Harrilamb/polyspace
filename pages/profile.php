@@ -30,8 +30,8 @@
 			<!--End left column-->
 			</div>
 				<div class="col-xs-8 col-sm-8 col-md-4 col-lg-4">
-					<a href="spacecraft.php" class="btn-link"><h3 style="text-align:center;">Build a Spacechip!</h3></a> 
-					<a href="studentproof.php"><h3 style="text-align:center;">Prove You're a Student</h3></a>
+					<a href="spacecraft.php" class="btn-link"><h3>Build a Spacechip!</h3></a> 
+					<a href="studentproof.php"><h3>Prove You're a Student</h3></a>
 				</div>
 			</div>
 		</div>	

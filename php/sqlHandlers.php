@@ -84,6 +84,8 @@
 		echo findSystems(true);
 	}elseif($_POST["action"]=="set_student"){
 		echo setStudent($_POST["code"]);
+	}elseif($_POST["action"]=="set_privileges"){
+		echo getPrivilege();
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -332,7 +334,7 @@
 			
 			}
 			return display_child_nodes(NULL,0,$index,$data);
-	}else{
+		}else{
 		
 			$sql = "SELECT s.id si, s.title st, s.description sd, s.tier stier, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.parent_id,s.id ORDER BY s.parent_id,s.tier";
 		
@@ -728,6 +730,23 @@
 			}
 		}else{
 			return 0;
+		}
+	}
+	
+	function getPrivilege(){
+		global $conn;
+		global $me;
+		global $org;
+		$sql="SELECT ut.name un FROM user u LEFT JOIN user_type ut ON (ut.code=u.user_type_code) WHERE u.id=".$me;
+		$result=$conn->query($sql);
+		$outp="";
+		while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+			$outp.=$rs["un"];
+		}
+		if($result){
+			return $outp;
+		}else{
+			return $conn->error;
 		}
 	}
 ?>
