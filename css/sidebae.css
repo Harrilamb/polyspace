@@ -37,6 +37,8 @@ GHOST WHITE: #FBFBFF
 RICH BLACK (FOGRA29): #040F16
 */
 
+/*gold:rgba(255,215,0)*/
+
 #joinBtn{
 	margin:15px 10px;
 }
@@ -247,6 +249,12 @@ textarea{
 	word-wrap:break-word;
 }
 
+#bulletin{
+	height:75vh;
+	padding-right:2%;
+	overflow:scroll;
+}
+
 .profileBody{
 	margin-top:10px;
 }
@@ -268,6 +276,11 @@ textarea{
 	border-left:4px solid #C5C1C0;
 	padding-left:5px;
 }
+
+/*.infoBlock h4{
+	border-bottom:1px solid black; 
+	padding-bottom:5px;
+}PERSONAL PREFERENCE*/
 
 .infoList{
 	padding-left:25px;
@@ -294,7 +307,11 @@ textarea{
 }
 
 .sysReqSelect,.entryVarSelect,.systemEntitySelect{
-	background-color:#FFFF00;
+	background-color:rgba(255,215,0,.20);
+}
+
+.entity div,.sysReq{
+	padding:0px 3px;
 }
 
 .currentIcon{
@@ -329,13 +346,13 @@ textarea{
 	color:#003EFF;
 }
 
-.entryStep2{
+#entryStep2{
 	width:500px;
 	height:250px;
 }
 
 .systemEntity:hover{
-	background-color:#ADD8E6;
+	background-color:#e3e3e3;
 }
 
 label{
@@ -381,4 +398,29 @@ label{
 	cursor:pointer;
 }
 
-rgba(255,215,0)
+#reqLinkageTable,#entryVarTable{
+	table-layout:fixed;
+}
+
+#entryVarTable{
+	width:400px;
+}
+
+.entryVarVal{
+	margin: 0 5px;
+	width:50px;
+}
+
+#entryVarTitle,#entryNext2{
+	display:none;
+}
+
+.entryProgress{
+	width:200px;
+	height:75px;
+}
+
+.entryProgress .buttons{
+	margin-top:10px;
+	display:inline;
+}

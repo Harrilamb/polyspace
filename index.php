@@ -25,7 +25,7 @@
 			<div class="formwrap">
 				<form>
 					<div class="form-group">
-						<input class="form-control textinput" id="username" type="text" placeholder="Username"/>
+						<input class="form-control textinput" id="username" type="text" placeholder="Email"/>
 						<input class="form-control textinput" id="password" type="password" placeholder="Password"/>
 					</div>
 				</form>

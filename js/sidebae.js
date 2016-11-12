@@ -23,7 +23,7 @@ $(document).ready(function(){
 					entryBuilder.loadSystems();
 				}else{
 					console.log(msg);
-					sweetAlert("Sorry something went wrong.");
+					//sweetAlert("Sorry something went wrong.");
 				};
 				
 //Handle addition of an entry
@@ -337,12 +337,12 @@ $(document).ready(function(){
 			})
 			.done(function( msg ) {
 				if(msg){
+					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 					if(popup==0){
 						$.colorbox.close();
 					}else{
 						$.colorbox({inline:true,href:"#entryStep2",overlayClose:false});
 					}
-					entryBuilder.loadVariables(entryBuilder.entryid,"entryVarMainRow");
 				}else{
 					console.log(msg);
 					sweetAlert("Something didn't go right, the variable was unable to be created.");
@@ -366,6 +366,7 @@ $(document).ready(function(){
 				});				
 			}else if(step==2){
 				$("#entryStep1").appendTo("#entryStep1Perm");
+				$("#entryVarTitle,#entryNext2").css("display","block");
 				$.colorbox({inline:true,href:"#entryStep2",overlayClose:false,escKey:false});
 				$("#inputVarsAdd,#outputVarsAdd").addClass("popup");
 				$("#entryNext2").click(function(){
@@ -618,7 +619,7 @@ $(document).ready(function(){
 //Object to store userful methods
 	var utilities = { 
 		"host":window.location.hostname,
-		"page":window.location.href.split("/")[window.location.href.split("/").length-1],
+		"page":window.location.href.split("/")[window.location.href.split("/").length-1].substring(0,window.location.href.split("/")[window.location.href.split("/").length-1].indexOf(".php")),
 //Extract number from a string, used to get db ids from html element ids
 		"getNum": function(string){
 			var num = string.replace( /^\D+/g, '');
@@ -750,8 +751,7 @@ $(document).ready(function(){
 		"lockdownView":function(){
 			if(security.read==false){
 				if(utilities.page!="home.php"){
-					sweetAlert("You're not allowed here!");
-					window.location.href="home.php";
+					//window.location.href="../index.php";
 				}
 			}else{
 				if(security.write==false){
@@ -775,6 +775,9 @@ $(document).ready(function(){
 //Initialize page
 	security.setPrivileges();
 	systemBuilder.findSystems();
+	if(utilities.page=="profile" && utilities.getURI("glimpse")!=undefined){
+		$(".personalDetails").load("../php/sqlHandlers.php?action=view_user&userid="+utilities.getURI("glimpse"));
+	}
 
 //Banner load and actions (link to home, load username)
 	$(function(){$("#headerArea").load("../html/heading-banner.html",
@@ -802,7 +805,6 @@ $(document).ready(function(){
 	
 //Handle the login process
 	$(".ascend").click(function(){
-		
 		  $.ajax({
 			method: "POST",
 			url: "php/checkUser.php",
@@ -812,6 +814,7 @@ $(document).ready(function(){
 			if(msg==1){
 				window.location.href="pages/home.php";
 			}else{
+				console.log(msg);
 				alert("I'm sorry dave, I can't do that.");
 			}
 		  });
@@ -1052,10 +1055,6 @@ $(document).ready(function(){
 		}
 	});	
 	
-	$("#testy").click(function(){
-		$.colorbox({html:"<h1>Welcome Harry</h1>",trapFocus:true,overlayClose:false});
-	});
-	
 	$("#inputVarsAdd").click(function(){
 		var popup=0;
 		if($(this).hasClass("popup")){popup = 1}
@@ -1083,10 +1082,10 @@ $(document).ready(function(){
 
 	
 	$(document).bind('cbox_complete', function(){
-	  $.colorbox.resize({width:"500px",height:"400px"});
+	  //$.colorbox.resize({width:"500px",height:"400px"});
 	  	
 		$("#cancelVarAdd").click(function(){
-			entryBuilder.entryProcess(entryBuilder.systemid,2);
+			$.colorbox({inline:true,href:"#entryStep2"});
 		});
 	});
 	
@@ -1110,4 +1109,5 @@ $(document).ready(function(){
 				}
 			});
 	});
+	
 });

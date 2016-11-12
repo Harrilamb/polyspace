@@ -2,7 +2,7 @@
 $a=password_hash(htmlspecialchars($_POST["password"]),PASSWORD_DEFAULT);
 
 include 'dbconnect.php';
-$conn=connectToMAMP();
+$conn=startConn();
 
 // Check connection
 if ($conn->connect_error) {

@@ -2,8 +2,8 @@
 	session_start();
 	include 'dbconnect.php';
 	include 'utilities.php';
-	$conn=connectToMAMP();
-	mysql_set_charset("utf8");
+	$conn=startConn();
+	//mysql_set_charset("utf8");
 	if($_GET["glimpse"]){
 		$me=$_GET["glimpse"];
 		$actualUser=FALSE;
@@ -100,6 +100,8 @@
 		echo findRequirements();
 	}elseif($_GET["action"]=="all_variables"){
 		echo findVariables("(0)",false,0);
+	}elseif($_GET["action"]=="view_user"){
+		echo userDetails($_GET["userid"]);
 	}else{
 		echo "No Task Found";
 	}
@@ -109,12 +111,12 @@
 		global $me;
 		global $org;
 		
-		$sql="INSERT INTO team (NAME,DESCRIPTION,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."',".$org.",".$me.",NULL)";
+		$sql="INSERT INTO TEAM (NAME,DESCRIPTION,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."',".$org.",".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
 			$team = $conn->insert_id;
-			$sql2="INSERT INTO joint_user_team (USERID,TEAMID,OWNER,CREATED_BY_USER_ID,CREATED_DATE) VALUE (".$me.",".$team.",1,".$me.",NULL)";
+			$sql2="INSERT INTO JOINT_USER_TEAM (USERID,TEAMID,OWNER,CREATED_BY_USER_ID,CREATED_DATE) VALUE (".$me.",".$team.",1,".$me.",NULL)";
 			$result2=$conn->query($sql2);
 			if($result2){
 				return 1;
@@ -131,12 +133,12 @@
 		global $me;
 		global $org;
 		
-		$sql="INSERT INTO project (TITLE,DESCRIPTION,OWNERID,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$me."',".$org.",".$me.",NULL)";
+		$sql="INSERT INTO PROJECT (TITLE,DESCRIPTION,OWNERID,ORG_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$me."',".$org.",".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		
 		if($result){
-			$sql2 = "INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('SYSTEM','Default starting point for all projects, flow out your systems from this one.',0,".$conn->insert_id.",1,".$me.",NULL);";
+			$sql2 = "INSERT INTO SYSTEM (TITLE,DESCRIPTION,PARENT_ID,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('SYSTEM','Default starting point for all projects, flow out your systems from this one.',0,".$conn->insert_id.",1,".$me.",NULL);";
 			$result2 = $conn->query($sql2);
 			if($result2){
 				return 1;
@@ -159,7 +161,7 @@
 			$ismaster=1;
 		}
 		
-		$sql="INSERT INTO system (TITLE,DESCRIPTION,PARENT_ID,TIER,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$parent."',(SELECT s.tier FROM system s WHERE id=".$parent.")+1,(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$ismaster.",".$me.",NULL)";
+		$sql="INSERT INTO SYSTEM (TITLE,DESCRIPTION,PARENT_ID,TIER,PROJECT_ID,ISMASTER,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$title."','".$desc."','".$parent."',(SELECT s.TIER FROM SYSTEM s WHERE ID=".$parent.")+1,(SELECT t.PROJECT_ID FROM JOINT_USER_TEAM jut LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$ismaster.",".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -174,7 +176,7 @@
 		global $me;
 		global $org;
 		
-		$sql="INSERT INTO requirement (NAME,DESCRIPTION,SOURCE,PF_FORMAT,TIER,DYNAMIC,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$source."','".$pf."',".$toi.",".$dyn.",(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
+		$sql="INSERT INTO REQUIREMENT (NAME,DESCRIPTION,SOURCE,PF_FORMAT,TIER,DYNAMIC,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$source."','".$pf."',".$toi.",".$dyn.",(SELECT t.PROJECT_ID FROM JOINT_USER_TEAM jut LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -189,7 +191,7 @@
 		global $me;
 		global $org;
 		
-		$sql="INSERT INTO vars (NAME,DESCRIPTION,SYMBOL,UNITS,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$symb."','".$unit."',(SELECT t.project_id FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
+		$sql="INSERT INTO VARS (NAME,DESCRIPTION,SYMBOL,UNITS,PROJECT_ID,CREATED_BY_USER_ID,CREATED_DATE) VALUES ('".$name."','".$desc."','".$symb."','".$unit."',(SELECT t.PROJECT_ID FROM JOINT_USER_TEAM jut LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) WHERE jut.CURRENT=1 AND jut.USERID=".$me."),".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -204,7 +206,7 @@
 		global $me;
 		global $org;
 		
-		$sql="INSERT INTO entry (`SYSTEMID`,`MASTERID`,`CLONECOUNT`,`ENTRY_STATUS_CODE`,`TITLE`,`DESCRIPTION`,`ISFIRST`,`CREATED_BY_USER_ID`,`CREATED_DATE`) VALUES (".$sysid.",0,0,1,'".$title."','".$desc."',1,".$me.",NULL)";
+		$sql="INSERT INTO ENTRY (`SYSTEMID`,`MASTERID`,`CLONECOUNT`,`ENTRY_STATUS_CODE`,`TITLE`,`DESCRIPTION`,`ISFIRST`,`CREATED_BY_USER_ID`,`CREATED_DATE`) VALUES (".$sysid.",0,0,1,'".$title."','".$desc."',1,".$me.",NULL)";
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -220,9 +222,9 @@
 		global $org;
 		
 		if($current){
-			$sql="SELECT t.id ti, t.name tn, t.description td, jut.userid ju,u.username uu,t.project_id tp FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.teamid IN (SELECT t.id FROM user u LEFT JOIN joint_user_team jut ON (jut.userid=u.id) LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.current=1 AND jut.userid=".$me.") AND jut.owner=1 AND t.org_id=".$org." AND t.active=1";
+			$sql="SELECT t.ID ti, t.NAME tn, t.DESCRIPTION td, jut.USERID ju,u.USERNAME uu,t.PROJECT_ID tp FROM JOINT_USER_TEAM jut LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) LEFT JOIN USER u ON (u.ID=jut.USERID) WHERE jut.TEAMID IN (SELECT t.ID FROM USER u LEFT JOIN JOINT_USER_TEAM jut ON (jut.USERID=u.ID) LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) WHERE jut.CURRENT=1 AND jut.USERID=".$me.") AND jut.OWNER=1 AND t.ORG_ID=".$org." AND t.ACTIVE=1";
 		}else{
-			$sql = "SELECT t.id ti, t.name tn, t.description td, jut.userid ju,u.username uu,t.project_id tp FROM joint_user_team jut LEFT JOIN team t ON (t.id=jut.teamid) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.teamid NOT IN (SELECT t.id FROM user u LEFT JOIN joint_user_team jut ON (jut.userid=u.id) LEFT JOIN team t ON (t.id=jut.teamid) WHERE jut.current=1 AND jut.userid=".$me.") AND jut.owner=1 AND t.org_id=".$org." AND t.active=1";
+			$sql = "SELECT t.ID ti, t.NAME tn, t.DESCRIPTION td, jut.USERID ju,u.USERNAME uu,t.PROJECT_ID tp FROM JOINT_USER_TEAM jut LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) LEFT JOIN USER u ON (u.ID=jut.USERID) WHERE jut.TEAMID NOT IN (SELECT t.ID FROM USER u LEFT JOIN JOINT_USER_TEAM jut ON (jut.USERID=u.ID) LEFT JOIN TEAM t ON (t.ID=jut.TEAMID) WHERE jut.CURRENT=1 AND jut.USERID=".$me.") AND jut.OWNER=1 AND t.ORG_ID=".$org." AND t.ACTIVE=1";
 		}
 		
 		$result=$conn->query($sql);
@@ -249,7 +251,7 @@
 		global $me;
 		global $org;
 
-		$sql="SELECT p.id pi, p.title pt, p.description pd, ow.username uu, t.id ti, ow.id ui FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)";
+		$sql="SELECT p.ID pi, p.TITLE pt, p.DESCRIPTION pd, ow.USERNAME uu, t.ID ti, ow.ID ui FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)";
 		$result=$conn->query($sql);
 		$outc=array();
 		$i=0;
@@ -260,9 +262,9 @@
 		//return sizeOf($outc);
 		if($current===0){
 			if(sizeOf($outc)>0){
-				$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu, ow.id ui FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1 AND p.id NOT IN (SELECT t.project_id FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) WHERE jut.userid=".$me." AND jut.current=1)";
+				$sql = "SELECT p.ID pi, p.TITLE pt, p.DESCRIPTION pd, ow.USERNAME uu, ow.ID ui FROM PROJECT p LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE p.ORG_ID=".$org." AND p.ACTIVE=1 AND p.ID NOT IN (SELECT t.PROJECT_ID FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) WHERE jut.USERID=".$me." AND jut.CURRENT=1)";
 			}else{
-				$sql = "SELECT p.id pi, p.title pt, p.description pd, ow.username uu, ow.id ui FROM project p LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE p.org_id=".$org." AND p.active=1";
+				$sql = "SELECT p.ID pi, p.TITLE pt, p.DESCRIPTION pd, ow.USERNAME uu, ow.ID ui FROM PROJECT p LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE p.ORG_ID=".$org." AND p.ACTIVE=1";
 			}
 		}
 		$result=$conn->query($sql);
@@ -290,7 +292,7 @@
 		if($html==true){
 			$data = array();
 			$index = array();
-			$sql="SELECT s.id si, s.parent_id sp, s.title st, s.description sd, s.tier stier, u.username uu, u.id ui FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.id,s.parent_id ORDER BY s.parent_id";
+			$sql="SELECT s.ID si, s.PARENT_ID sp, s.TITLE st, s.DESCRIPTION sd, s.TIER stier, u.USERNAME uu, u.ID ui FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.ID,s.PARENT_ID ORDER BY s.PARENT_ID";
 			$result = $conn->query($sql);
 			while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
 				$id = $rs["si"];
@@ -336,7 +338,7 @@
 			return display_child_nodes(NULL,0,$index,$data);
 		}else{
 		
-			$sql = "SELECT s.id si, s.title st, s.description sd, s.tier stier, u.username uu FROM system s LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user u ON (u.id=s.created_by_user_id) WHERE s.project_id IN (SELECT p.id pi FROM team t LEFT JOIN joint_user_team jut ON (jut.teamid=t.id) LEFT JOIN user u ON (u.id=jut.userid) LEFT JOIN project p ON (p.id=t.project_id) LEFT JOIN user ow ON (ow.id=p.ownerid) WHERE s.active=1 AND p.org_id=".$org." AND p.active=1 AND (jut.userid=".$me." AND jut.current=1)) GROUP BY s.parent_id,s.id ORDER BY s.parent_id,s.tier";
+			$sql = "SELECT s.ID si, s.TITLE st, s.DESCRIPTION sd, s.TIER stier, u.USERNAME uu FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.PARENT_ID,s.ID ORDER BY s.PARENT_ID,s.TIER";
 		
 			$result = $conn->query($sql);
 			if($result){
@@ -363,7 +365,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "SELECT r.id ri, r.name rn, r.description rd, u.username uu FROM requirement r LEFT JOIN project p ON (p.id=r.project_id) LEFT JOIN user u ON (u.id=r.created_by_user_id) WHERE r.active=1 AND p.org_id=".$org;
+		$sql = "SELECT r.ID ri, r.NAME rn, r.DESCRIPTION rd, u.USERNAME uu, u.ID ui FROM REQUIREMENT r LEFT JOIN PROJECT p ON (p.ID=r.PROJECT_ID) LEFT JOIN USER u ON (u.ID=r.CREATED_BY_USER_ID) WHERE r.ACTIVE=1 AND p.ORG_ID=".$org;
 		
 		$result = $conn->query($sql);
 		if($result){
@@ -373,6 +375,7 @@
 				$outp .= '{"id":"'  . $rs["ri"] . '",';
 				$outp .= '"name":"'   . $rs["rn"]        . '",';
 				$outp .= '"owner":"'   . $rs["uu"]        . '",';
+				$outp .= '"ownerid":"'   . $rs["ui"]        . '",';
 				$outp .= '"description":"'. $rs["rd"]     . '"}'; 
 			}
 			$outp ='{"records":['.$outp.']}';
@@ -391,9 +394,9 @@
 		$typ = 0;
 		if($entry!=0){
 			$typ=1;
-			$sql = "SELECT v.id vi, v.symbol vs, v.units vu, jve.value jv, jvt.name jn FROM joint_vars_entry jve LEFT JOIN vars v ON (v.id=jve.varsid) LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) LEFT JOIN jv_throughput jvt ON (jvt.code=jve.throughput_code) WHERE jve.active=1 AND jve.entryid=".$entry." AND p.org_id=".$org;
+			$sql = "SELECT v.ID vi, v.SYMBOL vs, v.UNITS vu, jve.VALUE jv, jvt.NAME jn FROM JOINT_VARS_ENTRY jve LEFT JOIN VARS v ON (v.ID=jve.VARSID) LEFT JOIN PROJECT p ON (p.ID=v.PROJECT_ID) LEFT JOIN USER u ON (u.ID=v.CREATED_BY_USER_ID) LEFT JOIN JV_THROUGHPUT jvt ON (jvt.CODE=jve.THROUGHPUT_CODE) WHERE jve.ACTIVE=1 AND jve.ENTRYID=".$entry." AND p.ORG_ID=".$org;
 		}else{
-			$sql = "SELECT v.id vi, v.name vn, v.description vd, v.symbol vs, v.units vu, u.username uu FROM vars v LEFT JOIN project p ON (p.id=v.project_id) LEFT JOIN user u ON (u.id=v.created_by_user_id) WHERE v.active=1 AND p.org_id=".$org." AND v.id NOT IN ".$notin;
+			$sql = "SELECT v.ID vi, v.NAME vn, v.DESCRIPTION vd, v.SYMBOL vs, v.UNITS vu, u.USERNAME uu, u.ID ui FROM VARS v LEFT JOIN PROJECT p ON (p.ID=v.PROJECT_ID) LEFT JOIN USER u ON (u.ID=v.CREATED_BY_USER_ID) WHERE v.ACTIVE=1 AND p.ORG_ID=".$org." AND v.ID NOT IN ".$notin;
 		}
 		$result = $conn->query($sql);
 		if($result){
@@ -409,7 +412,9 @@
 					$outp .= '"joinName":"' . $rs["jn"] . '",';
 				}else{
 					$outp .= '"owner":"'   .   $rs["uu"]     . '",';
+					$outp .= '"ownerid":"'   .   $rs["ui"]     . '",';
 					$outp .= '"name":"'   .   $rs["vn"]     . '",';
+					$outp .= '"units":"'   .   $rs["vn"]     . '",';
 					$outp .= '"description":"' . $rs["vd"] . '",';
 					$outHTML .= "<div id='evars".$rs["vi"]."' class='unlinkedVariables'><p><strong>".htmlspecialchars($vsymb)." </strong>".$rs["vn"].": ".$rs["vd"]."</p></div>";
 				}
@@ -430,7 +435,7 @@
 		global $conn;
 		global $me;
 		global $org;
-		$sql = "SELECT r.id ri, r.name rn, r.description rd, IF(r.id IN (SELECT jrs.requirementid FROM joint_requirement_system jrs WHERE jrs.active=1 AND jrs.systemid=".$sysid."),true,false) linked FROM requirement r WHERE r.active=1";
+		$sql = "SELECT r.ID ri, r.NAME rn, r.DESCRIPTION rd, IF(r.ID IN (SELECT jrs.REQUIREMENTID FROM JOINT_REQUIREMENT_SYSTEM jrs WHERE jrs.ACTIVE=1 AND jrs.SYSTEMID=".$sysid."),true,false) linked FROM REQUIREMENT r WHERE r.ACTIVE=1";
 		$result = $conn->query($sql);
 		if($result){
 			$outp=array();
@@ -454,9 +459,9 @@
 		global $org;
 		
 		if($sysid===0){
-			$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec, e.current ecurr,ow.username uu, ow.id ui FROM entry e LEFT JOIN system s ON (s.id=e.systemid) LEFT JOIN project p ON (p.id=s.project_id) LEFT JOIN user ow ON (ow.id=e.created_by_user_id) WHERE e.active=1 AND p.org_id=".$org;
+			$sql="SELECT e.ID ei, e.TITLE et, e.DESCRIPTION ed, e.MASTERID em, e.CLONECOUNT ec, e.CURRENT ecurr,ow.USERNAME uu, ow.ID ui FROM ENTRY e LEFT JOIN SYSTEM s ON (s.ID=e.SYSTEMID) LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=e.CREATED_BY_USER_ID) WHERE e.ACTIVE=1 AND p.ORG_ID=".$org;
 		}else{
-			$sql="SELECT e.id ei, e.title et, e.description ed, e.masterid em, e.clonecount ec, e.current ecurr,u.username uu, u.id ui FROM entry e LEFT JOIN user u ON (u.id=e.created_by_user_id) WHERE e.active=1 AND e.systemid=".$sysid;
+			$sql="SELECT e.ID ei, e.TITLE et, e.DESCRIPTION ed, e.MASTERID em, e.CLONECOUNT ec, e.CURRENT ecurr,u.USERNAME uu, u.ID ui FROM ENTRY e LEFT JOIN USER u ON (u.ID=e.CREATED_BY_USER_ID) WHERE e.ACTIVE=1 AND e.SYSTEMID=".$sysid;
 		}
 		
 		$result = $conn->query($sql);
@@ -489,7 +494,7 @@
 		$reqsUn.=")";
 		
 		if($connect==1){
-			$sqlcheck = "SELECT requirementid ri FROM joint_requirement_system WHERE systemid=".$sysid." AND requirementid IN ".$reqsUn;
+			$sqlcheck = "SELECT REQUIREMENTID ri FROM JOINT_REQUIREMENT_SYSTEM WHERE SYSTEMID=".$sysid." AND REQUIREMENTID IN ".$reqsUn;
 			$resultcheck=$conn->query($sqlcheck);
 			$outp = array();
 			$i=0;
@@ -545,7 +550,7 @@
 		}
 		$varsUn.=")";
 		if($connect==1){
-			$sqlcheck = "SELECT varsid vi FROM joint_vars_entry WHERE entryid=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND varsid IN ".$varsUn;
+			$sqlcheck = "SELECT VARSID vi FROM JOINT_VARS_ENTRY WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT CODE FROM JV_THROUGHPUT WHERE NAME='".$throughput."') AND VARSID IN ".$varsUn;
 			$resultcheck=$conn->query($sqlcheck);
 			$outp = array();
 			
@@ -562,7 +567,7 @@
 				if(in_array($i,$outp)){
 					$varu.=$i;
 				}else{
-					$vari.=$entry.",".$i.",(SELECT code FROM jv_throughput WHERE name='".$throughput."'),1,".$me.",NULL";
+					$vari.=$entry.",".$i.",(SELECT CODE FROM JV_THROUGHPUT WHERE NAME='".$throughput."'),1,".$me.",NULL";
 					$vari.=")";
 				}
 			}
@@ -574,12 +579,12 @@
 				$sql1 = "INSERT INTO JOINT_VARS_ENTRY (ENTRYID,VARSID,THROUGHPUT_CODE,ACTIVE,CREATED_BY_USER_ID,CREATED_DATE) VALUES ".$vari.";";
 			}
 			if(sizeof($outp)>0){
-				$sql2 = "UPDATE JOINT_VARS_ENTRY SET ACTIVE=1,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varu;			
+				$sql2 = "UPDATE JOINT_VARS_ENTRY SET ACTIVE=1,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT CODE FROM JV_THROUGHPUT WHERE NAME='".$throughput."') AND VARSID IN ".$varu;			
 			}
 			$sql = $sql1." ".$sql2;
 			$result = $conn->multi_query($sql);
 		}else{
-			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."') AND VARSID IN ".$varsUn;
+			$sql="UPDATE JOINT_VARS_ENTRY SET ACTIVE=0,UPDATED_BY_USER_ID=".$me." WHERE ENTRYID=".$entry." AND THROUGHPUT_CODE = (SELECT CODE FROM JV_THROUGHPUT WHERE NAME='".$throughput."') AND VARSID IN ".$varsUn;
 			$result = $conn->query($sql);
 		}
 		
@@ -595,7 +600,7 @@
 		global $me;
 		global $org;
 		
-		$sql = "UPDATE JOINT_VARS_ENTRY SET VALUE='".$val."',UPDATED_BY_USER_ID=".$me." WHERE VARSID=".$varid." AND ENTRYID=".$entryid." AND THROUGHPUT_CODE = (SELECT code FROM jv_throughput WHERE name='".$throughput."')";
+		$sql = "UPDATE JOINT_VARS_ENTRY SET VALUE='".$val."',UPDATED_BY_USER_ID=".$me." WHERE VARSID=".$varid." AND ENTRYID=".$entryid." AND THROUGHPUT_CODE = (SELECT CODE FROM JV_THROUGHPUT WHERE NAME='".$throughput."')";
 		$result= $conn->query($sql);
 		
 		if($result){
@@ -610,7 +615,7 @@
 		global $me;
 		global $org;
 			
-		$sqlcheck = "SELECT id juti FROM joint_user_team WHERE teamid=".$team." AND userid=".$me;
+		$sqlcheck = "SELECT ID juti FROM JOINT_USER_TEAM WHERE TEAMID=".$team." AND USERID=".$me;
 		$resultcheck=$conn->query($sqlcheck);
 		
 		$outp = array();
@@ -687,7 +692,7 @@
 		global $me;
 		global $org;
 			
-		$sqlcheck = "SELECT id ei FROM entry WHERE systemid=(SELECT systemid FROM entry WHERE id=".$entryid.") AND entry_status_code=3";
+		$sqlcheck = "SELECT ID ei FROM ENTRY WHERE SYSTEMID=(SELECT SYSTEMID FROM ENTRY WHERE ID=".$entryid.") AND ENTRY_STATUS_CODE=3";
 		$resultcheck=$conn->query($sqlcheck);
 		
 		$outp = array();
@@ -737,7 +742,7 @@
 		global $conn;
 		global $me;
 		global $org;
-		$sql="SELECT ut.name un FROM user u LEFT JOIN user_type ut ON (ut.code=u.user_type_code) WHERE u.id=".$me;
+		$sql="SELECT ut.NAME un FROM USER u LEFT JOIN USER_TYPE ut ON (ut.CODE=u.USER_TYPE_CODE) WHERE u.ID=".$me;
 		$result=$conn->query($sql);
 		$outp="";
 		while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
@@ -748,5 +753,25 @@
 		}else{
 			return $conn->error;
 		}
+	}
+	
+	function userDetails($id){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sql = "SELECT u.USERNAME uu, u.EMAIL ue, u.PHONE up, (SELECT t.NAME FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) WHERE jut.CURRENT=1 AND jut.USERID=".$me.") tn FROM USER u WHERE u.ID=".$id;
+		$result = $conn->query($sql);
+		if($result){
+			$outp="";
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				$outp .= "<div class='glimpsedUser'><h3>".$rs["uu"]."</h3><h4><strong>Team: </strong>".$rs["tn"]."</h4><p><strong>Email: </strong>".$rs["ue"]."</p><p><strong>Phone: </strong>".$rs["up"]."</p>";
+			}
+			$conn->close();
+		}else{
+			$outp="No Result";
+			$conn->close();
+		}
+		return $outp;
 	}
 ?>

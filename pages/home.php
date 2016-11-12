@@ -43,26 +43,49 @@
 					</ul>
 			  	</div>
 			</div>
-			<div class="col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-1 col-md-6 col-md-offset-0 col-lg-6 col-lg-offset-0">
+			<div class="col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-1 col-md-8 col-md-offset-0 col-lg-8 col-lg-offset-0">
 				<h2>Bulletin</h2>
-				<div class="naEntry">
-					<h3>A New Hope</h3>
-					<p>Welcome fellow comrades and compatriots! This is our year of reckoning, to declare in one voice that we will go with furor into a universe unknown to mankind. Stick together and we will rocket into the cosmos, and pave the path to an intergalactic future with the stardust of our tears.</p></br>
-					<img class="img-responsive center-block" src="../images/oddsinfavor.png"/>
+				<div id="bulletin">
+					<div class="naEntry">
+						<h3>Time To Get SOSD <img src="../images/icons/cheers.png" width="45" height="45"/></h3>
+						<p><i>Nov 11, 2016</i></p>
+						<p>System of Systems Designer (a.k.a. <a href="spacecraft.php">SOSD 1.0</a>) is a tool developed to help us manage our designs as we iterate through different variations. This application gives everybody the capability to build an entire system from the smallest level up, and is built around the following key features.</p>
+						<p><strong>Currently Available</strong></p>
+							<ul>
+								<li><strong>Teams and Projects</strong>: Seperate out system structures between teams and projects as the segmentation of our class changes.</li>
+								<li><strong>System Constructor</strong>: Provides the capability to construct a hierarchical model of all systems within the overall system. Attaching requirements forms the rules by which any entry must pass during voting.</li>
+								<li><strong>Design Entries</strong>: The user has variables to define the empirical values going into and out of a subsystem design, as well as the description to note key features.</li>
+								<li><strong>Direct MatLab Data Upload</strong>: Connect directly to the database from MatLab, this means that whenever the #1 entry for a system changes, any code using its variables can automatically update.</li>
+							</ul>
+						<p><strong>In Development</strong></p>
+							<ul>
+								<li><strong>Voting</strong>: Allows everyone to review requirements before an entry passes inspection, then they can choose which design entry is best in their opinion.</li>
+								<li><strong>Notifications</strong>: When an entry gets dethroned and a new one steps into the primary position, other systems with the same variables as the old and new entries will have its team notified of the possible effect on its validity.</p>
+							</ul>
+						<p>If you would like to help develop future tools for this project, I have made the source code available on Github.</p>
+						<p><a href="https://github.com/Harrilamb/polyspace"><i class="fa fa-github"></i>   Github Repository</a></p>
+						<p>Enjoy the new feature, I hope it helps our process, and if you find any bugs please let me know!</p>
+						<img class="img-responsive center-block" src="../images/sat_system.jpg"/>
+					</div>
+					<div class="naEntry">
+						<h3>A New Hope</h3>
+						<p><i>Sep 30, 2016</i></p>
+						<p>Welcome fellow comrades and compatriots! This is our year of reckoning, to declare in one voice that we will go with furor into a universe unknown to mankind. Stick together and we will rocket into the cosmos, and pave the path to an intergalactic future with the stardust of our tears.</p></br>
+						<img class="img-responsive center-block" src="../images/oddsinfavor.png"/>
+					</div>
 				</div>
 			</div>
-			<div class="col-xs-3 col-xs-offset-0 col-sm-3 col-sm-offset-0 col-md-4 col-lg-4">
+			<div class="col-xs-3 col-xs-offset-0 col-sm-3 col-sm-offset-0 col-md-2 col-lg-2">
 				<div>
 					<h2>Tools</h2>
 					<ul>
-						<li class="btn-link"><a href="spacecraft.php">System Builder</a></li>
+						<li class="btn-link"><a href="spacecraft.php">System Of Systems Designer</a></li>
 					</ul>
 				</div>
 				<div>
-					<h2>Important Shit</h2>
+					<h3>Important Shit</h3>
 					<ul>
 						<li><a href="rules.php">RULES</a></li>
-						<li><a href="requirements.php">Requirements</a></li>
 						<li><a href="qanda.php">Questions and Answers and Stuff</a></li>
 						<li><a href="contacts.php">Helpful People</a></li>
 					</ul>

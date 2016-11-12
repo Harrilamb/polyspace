@@ -2,14 +2,14 @@
 $a=htmlspecialchars($_POST["code"]);
 
 include 'dbconnect.php';
-$conn=connectToMAMP();
+$conn=startConn();
 
 // Check connection
 if ($conn->connect_error) {
 	die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT u.ID ui,u.org_id uoi,u.USERNAME uu,u.PASSWORD up, ut.name utn FROM user u LEFT JOIN user_type ut ON (ut.code=u.user_type_code) WHERE u.EMAIL='".htmlspecialchars($_POST["name"])."'";
+$sql = "SELECT u.ID ui,u.ORG_ID uoi,u.USERNAME uu,u.PASSWORD up, ut.NAME utn FROM USER u LEFT JOIN USER_TYPE ut ON (ut.CODE=u.USER_TYPE_CODE) WHERE u.EMAIL='".htmlspecialchars($_POST["name"])."'";
 $result = $conn->query($sql);
 while($row = $result->fetch_assoc()) {
 	$b=$row["up"];
@@ -31,6 +31,6 @@ if(password_verify($a,$b)==1){
 	$_SESSION["privilege"]=$f;
 	echo true;
 }else{
-	echo $c;
+	echo $conn;
 }
 ?>

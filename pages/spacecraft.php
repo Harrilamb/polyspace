@@ -20,7 +20,7 @@
 		<div class="row">
 		<!--Start left column-->
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 infoBlock">
-				<strong><p>Build a Spaceship</p></strong>
+				<h4>System Of Systems Designer (SOSD 1.0)</h4>
 				<ul class="infoList">
 					<li class="switchop">Team</li>
 					<li class="switchop">Project</li>
@@ -45,7 +45,7 @@
 									</div>
 									<h4>{{team.name}}</h4>
 									<p>{{team.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
+									<p>Created By: <a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a></p>
 								</div>
 							</div>
 						</div>
@@ -61,7 +61,7 @@
 										</div>
 										<h4>{{team.name}}</h4>
 										<p>{{team.description}}</p>
-										<a class="btn-link" href="profile.php?glimpse={{team.owner}}">{{team.owner}}</a>
+										<p>Created By: <a class="btn-link" href="profile.php?glimpse={{team.ownerid}}">{{team.owner}}</a></p>
 									</div>
 								</div>
 							</div>
@@ -73,7 +73,7 @@
 									<div class="currentIcon"><i title="#1 Project" class="fa fa-trophy fa-lg"></i></div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
+									<p>Created By: <a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a></p>
 								</div>
 							</div>
 						</div>
@@ -88,7 +88,7 @@
 									</div>
 									<h4>{{proj.title}}</h4>
 									<p>{{proj.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{proj.owner}}">{{proj.owner}}</a>
+									<p>Created By: <a class="btn-link" href="profile.php?glimpse={{proj.ownerid}}">{{proj.owner}}</a></p>
 								</div>
 							</div>
 						</div>
@@ -106,7 +106,7 @@
 									</div>
 									<h4>{{requirement.name}}</h4>
 									<p>{{requirement.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{requirement.owner}}">{{requirement.owner}}</a>
+									<p>Created By: <a class="btn-link" href="profile.php?glimpse={{requirement.ownerid}}">{{requirement.owner}}</a></p>
 								</div>
 							</div>
 						</div>
@@ -118,9 +118,9 @@
 										<i title="Change Team Info" class="fa fa-pencil-square-o fa-lg"></i>
 										<i title="Delete This System" class="fa fa-trash fa-lg"></i>
 									</div>
-									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}}</span></h4>
+									<h4>{{variable.symbol}} - <span class="symbName">{{variable.name}} ({{variable.units}})</span></h4>
 									<p>{{variable.description}}</p>
-									<a class="btn-link" href="profile.php?glimpse={{variable.owner}}">{{variable.owner}}</a>
+									<p>Created By: <a class="btn-link" href="profile.php?glimpse={{variable.ownerid}}">{{variable.owner}}</a></p>
 								</div>
 							</div>
 						</div>
@@ -144,9 +144,9 @@
 						</div>
 						<div id="entryStep2Perm">
 							<div id="entryStep2" class="form-group">
-								<h4>Step 2 of 3</h4>
+								<h4 id="entryVarTitle">Step 2 of 3</h4>
 								<h5>Variables</h5>
-								<table id="entryVarTable">
+								<table id="entryVarTable" class="table">
 									<thead>
 										<tr><th>Inputs</th><th>Outputs</th></tr>
 									</thead>
@@ -167,15 +167,15 @@
 						<div id="entryStep3Perm">
 							<div id="entryStep3" class="form-group writepriv">
 								<h4>Step 3 of 3</h4>
-								<div>
+								<div class="entryProgress">
+									<button id="entryStage" class="uibutton buttons block-left">Stage</button>
 									<h5>Stage Entry</h5>
 									<p>Put it to the test!</p>
-									<button id="entryStage" class="uibutton buttons">Stage</button>
 								</div>
-								<div>
+								<div class="entryProgress">
+									<button id="entryStash" class="uibutton buttons block-left">Stash</button>
 									<h5>Stash Entry</h5>
 									<p>Just making it now.</p>
-									<button id="entryStash" class="uibutton buttons">Stash</button>
 								</div>
 							</div>
 						</div>
@@ -306,7 +306,7 @@
 				</div>
 				<div class="op sysReqOp">
 					<h3>Requirements</h3>
-					<table id="reqLinkageTable">
+					<table id="reqLinkageTable" class="table">
 						<thead>
 							<tr><th>Unlinked</th><th>Linked</th></tr>
 						</thead>
