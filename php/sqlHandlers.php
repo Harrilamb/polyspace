@@ -2,6 +2,7 @@
 	session_start();
 	include 'dbconnect.php';
 	include 'utilities.php';
+	include 'DBEntity.php';
 	$conn=startConn();
 	//mysql_set_charset("utf8");
 	if($_GET["glimpse"]){
@@ -288,33 +289,44 @@
 	function findSystems($html){
 		global $conn;
 		global $me;
-		global $org;
+		global $org;		
+
 		if($html==true){
 			$data = array();
 			$index = array();
-			$sql="SELECT s.ID si, s.PARENT_ID sp, s.TITLE st, s.DESCRIPTION sd, s.TIER stier, u.USERNAME uu, u.ID ui FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.ID,s.PARENT_ID ORDER BY s.PARENT_ID";
+			$sql="SELECT s.ID si, s.PARENT_ID sp, s.TITLE st, s.DESCRIPTION sd, s.TIER stier, u.USERNAME uu, u.ID ui FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.TIER,s.ID,s.PARENT_ID ORDER BY s.TIER,s.PARENT_ID ASC";
 			$result = $conn->query($sql);
-			while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
-				$id = $rs["si"];
-				$parent_id = $rs["sp"] === NULL ? "NULL" : $rs["sp"];
-				$data[$id] = $rs;
-				$index[$parent_id][] = $id;
-			}
 			
-			/*
-			 * Recursive top-down tree traversal example:
-			 * Indent and print child nodes
-			 */
+			if($result){
+				while ($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+					$id = $rs["si"];
+					$parent_id = $rs["sp"] === NULL ? "NULL" : $rs["sp"];
+					$data[$id] = $rs;
+					if(empty($index[$parent_id])){
+						$index[$parent_id] =  array(); 
+					}
+					
+					array_push($index[$parent_id],$id);
+				}
+			
+				
+				// sort the 
+			
+			
+				/*
+				 * Recursive top-down tree traversal example:
+				 * Indent and print child nodes
+				 */
 		
-			function display_child_nodes($parent_id, $level,$index,$data)
-			{
-				$string="";
-				$parent_id = $parent_id === NULL ? 0 : $parent_id;
-				if (isset($index[$parent_id])) {
-					foreach ($index[$parent_id] as $id) {			
-						$d = $data[$id];
-						$string.="<div class='entity currentEntity' style='margin-left:".$d['stier']."0px;'>
-									<div id='sys".$d['si']."' class='systemEntity'>
+				function display_child_nodes($parent_id, $level,$index,$data)
+				{
+					$string="";
+					$parent_id = $parent_id === NULL ? 0 : $parent_id;
+					if (isset($index[$parent_id])) {
+						foreach ($index[$parent_id] as $id) {			
+							$d = $data[$id];
+							$string.="<div class='entity currentEntity' style='margin-left:".$d['stier']."0px;'>
+										<div id='sys".$d['si']."' class='systemEntity'>
 										<div class='interact'>
 											<i title='Attach Requirements' class='fa fa-rocket fa-lg'></i>
 											<i title='Add An Entry' class='fa fa-plus-square fa-lg'></i>
@@ -327,35 +339,60 @@
 											<a class='btn-link' href='profile.php?glimpse=".$d['ui']."'>".$d['uu']."</a>
 										</div>
 									</div>
-								</div>";
+									</div>";
 
-						$string.=display_child_nodes($id, $level + 1,$index,$data);
-					}
-					return $string;
-				}			
+							$string.=display_child_nodes($id, $level + 1,$index,$data);
+						}
+						//$string.=display_child_nodes($id, $level+1, $inde, data); 
+						echo $string;
+					}			
 			
+				}
+			}else{
+				echo 0;
 			}
-			return display_child_nodes(NULL,0,$index,$data);
+			return display_child_nodes(11,0,$index,$data);
 		}else{
 		
-			$sql = "SELECT s.ID si, s.TITLE st, s.DESCRIPTION sd, s.TIER stier, u.USERNAME uu FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.PARENT_ID,s.ID ORDER BY s.PARENT_ID,s.TIER";
+			$sql = "SELECT s.ID si,s.PARENT_ID sp, s.TITLE st, s.TIER stier, s.DESCRIPTION sd, u.USERNAME uu, u.ID ui FROM SYSTEM s LEFT JOIN PROJECT p ON (p.ID=s.PROJECT_ID) LEFT JOIN USER u ON (u.ID=s.CREATED_BY_USER_ID) WHERE s.PROJECT_ID IN (SELECT p.ID pi FROM TEAM t LEFT JOIN JOINT_USER_TEAM jut ON (jut.TEAMID=t.ID) LEFT JOIN USER u ON (u.ID=jut.USERID) LEFT JOIN PROJECT p ON (p.ID=t.PROJECT_ID) LEFT JOIN USER ow ON (ow.ID=p.OWNERID) WHERE s.ACTIVE=1 AND p.ORG_ID=".$org." AND p.ACTIVE=1 AND (jut.USERID=".$me." AND jut.CURRENT=1)) GROUP BY s.PARENT_ID,s.ID ORDER BY s.PARENT_ID,s.TIER";
 		
 			$result = $conn->query($sql);
-			if($result){
+			/*if($result){
 				$outp = "";
 				while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
 					if ($outp != "") {$outp .= ",";}
 					$outp .= '{"id":"'  . $rs["si"] . '",';
+					$outp .= '"parentid":"'   . $rs["sp"]        . '",';
 					$outp .= '"title":"'   . $rs["st"]        . '",';
 					$outp .= '"owner":"'   . $rs["uu"]        . '",';
+					$outp .= '"ownerid":"'   . $rs["ui"]        . '",';
 					$outp .= '"tier":"'   . $rs["stier"]        . '",';
 					$outp .= '"description":"'. $rs["sd"]     . '"}'; 
+				}*/
+			if($result){
+				$outp=array();
+				$i=0;
+				while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+					$outp[$i] = array("id"=>$rs["si"],
+										"parentid"=>$rs["sp"],
+										"title"=>$rs["st"],
+										"tier"=>$rs["stier"],
+										"description"=>$rs["sd"],
+										"owner"=>$rs["uu"],
+										"ownerid"=>$rs["ui"]
+								);
+					$i++;
 				}
-			
-				$outp ='{"records":['.$outp.']}';
+				$outFinal = array("records"=>$outp);
 				$conn->close();
-
-				echo $outp;
+			
+				//echo var_dump($outp);
+				$outq ='{"records":['.$outp.']}';
+				$conn->close();
+				$json_response = json_encode($outp);  
+				//echo var_dump($obj); 
+			 	echo instantiate($json_response);
+				//echo $outp;
 			}
 		}
 	}

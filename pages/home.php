@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	if(!isset($_SESSION["userid"]) || empty($_SESSION["userid"])){
-		header("location:../index.php");
+		header("location:../index.php?returl=home");
 	}
 ?>
 <!DOCTYPE html>
@@ -25,16 +25,7 @@
 					<h2>Resources</h2>
 					<ul>
 						<li class="btn-link"><a href="../docs/rfp.pdf" target="_blank">Request For Proposal</a></li>
-						<li class="btn-link driveBtn">Google Drive</li>
-							<ul class="driveList dlHidden">
-								<li>Team 1</li>
-								<li class="btn-link"><a href="https://drive.google.com/drive/folders/0B9f10mN88s-xRWd2MjNtdmlVcW8?usp=sharing" target="_blank">Team 2</a></li>
-								<li>Team 3</li>
-								<li>Team 4</li>
-								<li>Team 5</li>
-								<li>Team 6</li>
-								<li>Team 7</li>
-							</ul>
+						<li class="btn-link"><a href="https://drive.google.com/drive/folders/0B9f10mN88s-xbHFwS0tOYnBWNFk?usp=sharing" target="_blank" >Google Drive</a></li>
 						<li class="btn-link"><a href="../docs/SMAD.pdf" target="_blank">SMAD PDF</a></li>
 						<li class="btn-link"><a href="../docs/firstResponse.pdf" target="_blank">1st Round Responses</a></li>
 						<li class="btn-link"><a href="../docs/NASA_Syst.pdf" target="_blank">NASA Systems Handbook</a></li>
@@ -63,7 +54,7 @@
 								<li><strong>Notifications</strong>: When an entry gets dethroned and a new one steps into the primary position, other systems with the same variables as the old and new entries will have its team notified of the possible effect on its validity.</p>
 							</ul>
 						<p>If you would like to help develop future tools for this project, I have made the source code available on Github.</p>
-						<p><a href="https://github.com/Harrilamb/polyspace"><i class="fa fa-github"></i>   Github Repository</a></p>
+						<p class="indent"><a href="https://github.com/Harrilamb/polyspace"><i class="fa fa-github"></i>   Github Repository</a></p>
 						<p>Enjoy the new feature, I hope it helps our process, and if you find any bugs please let me know!</p>
 						<img class="img-responsive center-block" src="../images/sat_system.jpg"/>
 					</div>

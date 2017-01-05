@@ -31,6 +31,6 @@ if(password_verify($a,$b)==1){
 	$_SESSION["privilege"]=$f;
 	echo true;
 }else{
-	echo $conn;
+	echo $conn->error;
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	if(!isset($_SESSION["userid"]) || empty($_SESSION["userid"]) || !isset($_SESSION["privilege"])){
-		header("location:../index.php");
+		header("location:../index.php?returl=spacecraft");
 	}
 ?>
 <!DOCTYPE html>
@@ -263,7 +263,8 @@
 							<label for="requirementTierSet">Tier of Importance:</label>
 							<select  id="requirementTierSet" class="form-control" ng-options="team.id as team.name for team in otherTeams track by team.id">
 								<option value="none" selected="selected">Choose One</option>
-								<option value="0">Necessary</option>
+								<option value="1">Necessary</option>
+								<option value="2">Desirement</option>
 							</select>
 							<label for="requirementDynamicSet">Dynamic
 							<input id="requirementDynamicSet" type="checkbox" class="form-control" checked="checked"/>

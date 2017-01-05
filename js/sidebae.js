@@ -1,6 +1,8 @@
 $(document).ready(function(){
-//Object to handle the system management process
+//  Object to handle the system management process
 	var systemBuilder = {
+//  Used to tell what system the user is currently on, should
+//  only change on clicking the element
 		"system":undefined,
 		"requirements":undefined,
 		"findSystems":function(){
@@ -16,23 +18,23 @@ $(document).ready(function(){
 				
 				if(msg){
 
-//Reload list of systems in view
+//  Reload list of systems in view
 					$(".sysList").append(msg);
 
-//Call reload of system dropdowns
+//  Call reload of system dropdowns
 					entryBuilder.loadSystems();
 				}else{
 					console.log(msg);
 					//sweetAlert("Sorry something went wrong.");
 				};
 				
-//Handle addition of an entry
+//  Handle addition of an entry
 				$(".fa-plus-square").click(function(){
 					var sysid = utilities.getNum($(this).parents().eq(1).attr("id"));
 					entryBuilder.entryProcess(sysid,1);
 				});
 				
-//Handle the clicking of a system to show entries attached to it
+//  Handle the clicking of a system to show entries attached to it
 				$(".systemEntity").click(function(){
 					$(".systemEntitySelect").removeClass("systemEntitySelect");
 					$(this).addClass("systemEntitySelect");
@@ -51,7 +53,7 @@ $(document).ready(function(){
 			   $(".systemEntity .interact i").click(function(e) {
 					e.stopPropagation();
 			   });
-//Handle deletion of an entity
+//  Handle deletion of an entity
 				$(".fa-trash").click(function(){
 					var adult = $(this).parents().eq(1).attr("id");
 					var entityid = utilities.getNum(adult);
@@ -91,8 +93,7 @@ $(document).ready(function(){
 						}
 					}
 				});
-
-//Switch to system definition tool
+//  Switch to system definition tool
 				$(".fa-rocket").click(function(){
 					var sysid = parseInt(utilities.getNum($(this).parents().eq(1).attr("id")));
 					systemBuilder.system = sysid;
@@ -163,13 +164,13 @@ $(document).ready(function(){
 					systemBuilder.dataUpdate();
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
+					//sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
 				}
 			});
 		},
 	};
 	
-//Object to handle the entry management process
+//  Object to handle the entry management process
 	var entryBuilder = {
 		"entryid":undefined, //switch to undefined when var add is finished
 		"currsys":undefined,
@@ -182,7 +183,7 @@ $(document).ready(function(){
 		"currThroughput":undefined,
 		"jointVars":undefined,
 		"lockProcess":false,
-//Load systems available to attach the entry to
+//  Load systems available to attach the entry to
 		"loadSystems":function(){
 			$.ajax({
 				method:"POST",
@@ -190,15 +191,15 @@ $(document).ready(function(){
 			})
 			.done(function( msg ) {
 				if(msg){
-					entryBuilder.systems = JSON.parse(msg).records;
+					entryBuilder.systems = JSON.parse(msg);
 					entryBuilder.updateDropdown();
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
+					//sweetAlert("Something didn't go right, the requirement was unable to be linked to the system.");
 				}
 			});
 		},
-//Put loaded systems in dropdown used to select when making an entry
+//  Put loaded systems in dropdown used to select when making an entry
 		"updateDropdown":function(){
 			$(".systemSelect").empty();
 			var ebs = entryBuilder.systems;
@@ -208,7 +209,7 @@ $(document).ready(function(){
 			}
 			$(".systemSelect").append(options);	
 		},
-//Load variables available to attach to the entry
+//  Load variables available to attach to the entry
 		"loadVariables":function(entry,target){
 			entryBuilder.entryid=entry;
 			$.ajax({
@@ -227,11 +228,12 @@ $(document).ready(function(){
 					}
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be linked to the system.");
+					//sweetAlert("Something didn't go right, the variable was unable to be linked to the system.");
 				}
 			});
 		},
-//Put loaded variables into lists of variables used to select and edit for entry creation
+//  Put loaded variables into lists of variables used to select and edit
+//  for entry creation
 		"updateVarLists":function(target){
 			var inList = [];
 			var outList = [];
@@ -243,7 +245,7 @@ $(document).ready(function(){
 					if(security.edit===true){
 						var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
 					}else{
-						var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><p>"+thisVar.joinValue+"</p><i>"+thisVar.units+"</i></div>");
+						var thing = $("<div id='invar"+thisVar.id+"' class='entryVar'><p><strong>"+thisVar.symbol+"</strong>"+thisVar.joinValue+"<i>"+thisVar.units+"</i></p></div>");
 					}
 					inList[inList.length]=thisVar;
 					thing.appendTo("#"+target+" .inputList");
@@ -251,7 +253,7 @@ $(document).ready(function(){
 					if(security.edit===true){
 						var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><input type='text' class='entryVarVal' value='"+thisVar.joinValue+"' placeholder='"+thisVar.joinValue+"'/><i>"+thisVar.units+"</i></div>");
 					}else{
-						var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><strong>"+thisVar.symbol+"</strong><p>"+thisVar.joinValue+"</p><i>"+thisVar.units+"</i></div>");
+						var thing = $("<div id='outvar"+thisVar.id+"' class='entryVar'><p><strong>"+thisVar.symbol+"</strong>"+thisVar.joinValue+"<i>"+thisVar.units+"</i></p></div>");
 					}
 					outList[outList.length]=thisVar;
 					thing.appendTo("#"+target+" .outputList");
@@ -279,7 +281,6 @@ $(document).ready(function(){
 				entryBuilder.changeVarVals(value,varid,throughput);
 			});
 		},
-//
 		"notinVars":function(location,throughput,popup){
 			entryBuilder.currThroughput = throughput;
 			if(throughput=="input"){
@@ -300,7 +301,7 @@ $(document).ready(function(){
 					entryBuilder.buildUnusedVars(location,popup);
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -320,7 +321,7 @@ $(document).ready(function(){
 					if(varsList.length!="()"){
 						entryBuilder.linkVariable(varsList,popup);
 					}else{
-						sweetAlert("You must select at least one requirement to transfer.");
+						//sweetAlert("You must select at least one requirement to transfer.");
 					}
 				});
 			}
@@ -345,7 +346,7 @@ $(document).ready(function(){
 					}
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -361,7 +362,7 @@ $(document).ready(function(){
 					if(system!="none" && title!="" && description!=""){
 						entryBuilder.addEntry(system,title,description);
 					}else{
-						sweetAlert("All fields must be filled to proceed.");
+						//sweetAlert("All fields must be filled to proceed.");
 					}
 				});				
 			}else if(step==2){
@@ -400,7 +401,7 @@ $(document).ready(function(){
 					entryBuilder.entryProcess(system,2);
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the entry was unable to be created.");
+					//("Something didn't go right, the entry was unable to be created.");
 				}
 			});
 		},
@@ -418,7 +419,7 @@ $(document).ready(function(){
 					entryBuilder.updateEntryList();
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -460,7 +461,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -476,13 +477,13 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}
 	}
 	
-//Object to handle relationships
+//  Object to handle relationships
 	var counselor = {
 		"switchTeams":function(team){
 			$.ajax({
@@ -496,7 +497,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -512,7 +513,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 				
@@ -529,7 +530,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -545,7 +546,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -562,7 +563,7 @@ $(document).ready(function(){
 					console.log(msg);
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -578,7 +579,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -594,7 +595,7 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
@@ -610,13 +611,13 @@ $(document).ready(function(){
 				if(msg){
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}
 	};
 	
-//Object to store userful methods
+//  Object to store userful methods
 	var utilities = { 
 		"host":window.location.hostname,
 		"page":window.location.href.split("/")[window.location.href.split("/").length-1].substring(0,window.location.href.split("/")[window.location.href.split("/").length-1].indexOf(".php")),
@@ -635,7 +636,7 @@ $(document).ready(function(){
 			ret+=")";
 			return ret;
 		},
-//
+
 		"confirmAction":function(string,fn,yes,no,color){
 			if(color=="red"){
 				color="#DD6B55";
@@ -688,6 +689,7 @@ $(document).ready(function(){
 		"write":false,
 		"remove":false,
 		"edit":false,
+		
 		"setPrivileges": function(){
 			$.ajax({
 		  	method:"POST",
@@ -702,10 +704,11 @@ $(document).ready(function(){
 					security.setupLevels();
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		},
+		
 		"setupLevels":function(){
 			var s = security;
 			switch(security.level){
@@ -749,11 +752,13 @@ $(document).ready(function(){
 		},
 		
 		"lockdownView":function(){
-			if(security.read==false){
-				if(utilities.page!="home.php"){
-					//window.location.href="../index.php";
+			//This part isn't working properly, it triggers on guests on the wrong page
+			//Maybe something to do with it loads before the page url is set
+			/*if(security.read==false){
+				if(utilities.page!="home"){
+					window.location.href="../index.php";
 				}
-			}else{
+			}else{*/
 				if(security.write==false){
 					$(".writepriv").remove();
 					$(".fa-plus-square").remove();
@@ -768,18 +773,26 @@ $(document).ready(function(){
 				if(security.edit==false){
 					$(".fa-pencil-square-o").remove();
 				}
-			}
+			//}
 		}
 	};
 
-//Initialize page
+//  Initialize page
 	security.setPrivileges();
-	systemBuilder.findSystems();
+//	Initialize spacecraft app
+	function scInitialize(){
+		systemBuilder.findSystems();
+	}
+	if(utilities.page=="spacecraft"){
+		scInitialize();
+	}
+//  If the page is loaded with url suffix 'glimpse' then load info for
+//  the userid it's set to
 	if(utilities.page=="profile" && utilities.getURI("glimpse")!=undefined){
 		$(".personalDetails").load("../php/sqlHandlers.php?action=view_user&userid="+utilities.getURI("glimpse"));
 	}
 
-//Banner load and actions (link to home, load username)
+//  Banner load and actions (link to home, load username)
 	$(function(){$("#headerArea").load("../html/heading-banner.html",
 		function(){
 			$("#usersname").load("../php/checkSession.php",function( response,status,xhr ){});
@@ -798,29 +811,12 @@ $(document).ready(function(){
 	});
 	
 	
-//Easy utility for quick html close buttons
+//  Easy utility for quick html close buttons
 	$(".close").click(function(){
 		$(this).parent().fadeOut("fast",function(){});
 	});
 	
-//Handle the login process
-	$(".ascend").click(function(){
-		  $.ajax({
-			method: "POST",
-			url: "php/checkUser.php",
-			data: { name: $("#username").val(), code: $("#password").val()}
-		  })
-		  .done(function( msg ) {
-			if(msg==1){
-				window.location.href="pages/home.php";
-			}else{
-				console.log(msg);
-				alert("I'm sorry dave, I can't do that.");
-			}
-		  });
-	});
-	
-//Handle the addition of a new team
+//  Handle the addition of a new team
 	$(".addTeam").click(function(){
 		if($("#teamNameSet").val().trim()!="" && $("#teamDescSet").val().trim()!=""){
 			$.ajax({
@@ -838,7 +834,7 @@ $(document).ready(function(){
 					$("#teamDescSet").val("");
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the team was unable to be created.");
+					//sweetAlert("Something didn't go right, the team was unable to be created.");
 				}
 			});
 		}else{
@@ -846,7 +842,7 @@ $(document).ready(function(){
 		}
 	});
 	
-//Handle the addition of a new project
+//  Handle the addition of a new project
 	$(".addProject").click(function(){
 		if($("#projectTitleSet").val().trim()!="" && $("#projectDescSet").val().trim()!=""){
 			$.ajax({
@@ -864,7 +860,7 @@ $(document).ready(function(){
 					$("#projectDescSet").val("");
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the project was unable to be created.");
+					//sweetAlert("Something didn't go right, the project was unable to be created.");
 				}
 			});
 		}else{
@@ -872,7 +868,7 @@ $(document).ready(function(){
 		}
 	});
 	
-//Handle the addition of a new system
+//  Handle the addition of a new system
 	$(".addSystem").click(function(){
 		if($("#systemParentSet").val()!="0" && $("#systemTitleSet").val().trim()!="" && $("#systemDescSet").val().trim()!=""){
 			$.ajax({
@@ -893,7 +889,7 @@ $(document).ready(function(){
 					systemBuilder.findSystems();
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the system was unable to be created.");
+					//sweetAlert("Something didn't go right, the system was unable to be created.");
 				}
 			});
 		}else{
@@ -901,7 +897,7 @@ $(document).ready(function(){
 		}
 	});
 
-//Handle the addition of a new requirement
+//  Handle the addition of a new requirement
 	$(".addRequirement").click(function(){
 		if($("#requirementNameSet").val().trim()!="" && $("#requirementDescSet").val().trim()!="" && $("#requirementPassFailSet").val().trim()!="" && $("#requirementSourceSet").val().trim()!="" && $("requirementTierSet").val()!="none"){
 			$.ajax({
@@ -927,7 +923,7 @@ $(document).ready(function(){
 					$("#requirementDynamicSet").prop("checked",true);
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the requirement was unable to be created.");
+					//sweetAlert("Something didn't go right, the requirement was unable to be created.");
 				}
 			});
 		}else{
@@ -935,7 +931,7 @@ $(document).ready(function(){
 		}
 	});
 
-//Handle the addition of a new variable
+//  Handle the addition of a new variable
 	$(".addVariable").click(function(){
 		if($("#variableNameSet").val().trim()!="" && $("#variableDescSet").val().trim()!="" && $("#variableSymbolSet").val().trim()!="" && $("#variableUnitSet").val().trim()!=""){
 			$.ajax({
@@ -957,7 +953,7 @@ $(document).ready(function(){
 					$("#variableUnitSet").val("");
 				}else{
 					console.log(msg);
-					sweetAlert("Something didn't go right, the variable was unable to be created.");
+					//sweetAlert("Something didn't go right, the variable was unable to be created.");
 				}
 			});
 		}else{
@@ -965,32 +961,8 @@ $(document).ready(function(){
 		}
 	});
 
-//Handle the signup process
-	$(".subutt").click(function(){
-			var name = $("#name").val().split(" ");
-			var fn = name[0];
-			var ln = "";
-			for(var i = 1; i<name.length; i++){
-				ln=ln+name[i];
-			}
-		  $.ajax({
-		  	method:"POST",
-		  	url:"../php/signupHandler.php",
-		  	data:{ name: $("#name").val(), email: $("#email").val(), password: $("#password").val(), firstname: fn, lastname: ln }
-		  })
-		  .done(function( msg ) {
-		  	if(msg==1){
-		  		window.location.href="home.php";
-		  	}else if(msg==0){
-		  		sweetAlert("The email you used is already taken.");
-		  	}else{
-		  		console.log(msg);
-		  		sweetAlert("Something went wrong trying to add you, please contact the site admin Harrison L with the deets.");
-		  	}
-		  });
-	});
-
-//Used to drop down and pull up list of teams to select distinct drives
+//  Used to drop down and pull up list of teams to select 
+//  distinct g-drives
 	$(".driveBtn").click(function(){
 		$(".driveList").toggleClass("dlHidden",function(){});
 		if($(".driveList").hasClass("dlHidden")){
@@ -1000,7 +972,7 @@ $(document).ready(function(){
 		}
 	});
 	
-//Switch between entity views, triggered by list
+//  Switch between entity views, triggered by list
 	$(".switchop").click(function(){
 		$(".systemEntitySelect").removeClass("systemEntitySelect");
 		$(".currop").removeClass("currop");
@@ -1025,7 +997,7 @@ $(document).ready(function(){
 		}
 	});
 		
-//Handle the linkage of a requirement to a system
+//  Handle the linkage of a requirement to a system
 	$("#linkReqs").click(function(){
 		var i = 0;
 		var reqList = [];
@@ -1036,11 +1008,11 @@ $(document).ready(function(){
 		if(reqList.length>0){
 			systemBuilder.changeReqLinkage(reqList,1);
 		}else{
-			sweetAlert("You must select at least one requirement to transfer.");
+			//sweetAlert("You must select at least one requirement to transfer.");
 		}
 	});
 	
-//Handle the unlinkage of a requirement from a system
+//  Handle the unlinkage of a requirement from a system
 	$("#unlinkReqs").click(function(){
 		var i = 0;
 		var reqList = [];
@@ -1051,22 +1023,25 @@ $(document).ready(function(){
 		if(reqList.length>0){
 			systemBuilder.changeReqLinkage(reqList,0);
 		}else{
-			sweetAlert("You must select at least one requirement to transfer.");
+			//sweetAlert("You must select at least one requirement to transfer.");
 		}
 	});	
-	
+
+//  Handle the linkage of a new input variable to an entry
 	$("#inputVarsAdd").click(function(){
 		var popup=0;
 		if($(this).hasClass("popup")){popup = 1}
 		entryBuilder.notinVars("colorbox","input",popup);
 	});
 	
+//  Handle the linkage of a new output variable to an entry
 	$("#outputVarsAdd").click(function(){
 		var popup=0;
 		if($(this).hasClass("popup")){popup = 1}
 		entryBuilder.notinVars("colorbox","output",popup);
 	});
 	
+//  Handle the staging (for voting) of an entry
 	$("#entryStage").click(function(){
 		entryBuilder.stageEntry();
 		$.colorbox.close();
@@ -1074,13 +1049,18 @@ $(document).ready(function(){
 		entryBuilder.lockProcess=false;
 	});
 	
+//  This doesn't actually change anything cuz it's just default on 
+//  entry addition, so it only closes the popup
 	$("#entryStash").click(function(){
 		$.colorbox.close();
 		sweetAlert("All finished, this entry is now created!");
 		entryBuilder.lockProcess=false;
 	});
 
-	
+//  Set a rule that whenever the popup is opened it resizes because
+//  it has a problem with sizing while asynchronous data is being 
+//  loaded, might be fixed with adjusting callback nesting but 
+//  haven't tried yet
 	$(document).bind('cbox_complete', function(){
 	  //$.colorbox.resize({width:"500px",height:"400px"});
 	  	
@@ -1089,6 +1069,7 @@ $(document).ready(function(){
 		});
 	});
 	
+//  Sets student privilege
 	$("#proveit").click(function(){
 		$.ajax({
 				method:"POST",
