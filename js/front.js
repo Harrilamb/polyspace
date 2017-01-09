@@ -143,10 +143,11 @@ $(document).ready(function(){
 	var uid = utilities.getURI("u");
 	if(uid!=undefined){
 		var p = getPublicProfile(uid,function(retdata){			
+		console.log(p.hasOwnProperty("name"));
 			var p = JSON.parse(retdata);
-			$(".userName").text(p.name);
-			$(".userRole").text(p.role);
-			$(".userStory").text(p.description);
+			p.name.length>0?$(".userName").text(p.name):null;
+			p.role.length>0?$(".userRole").text(p.role):null;
+			p.description.length>0?$(".userStory").text(p.description):null;
 			p.li.length>0?$(".userLink").text(p.li).attr("href",p.li):$(".userLinkHolder").hide();
 			p.email.length>0?$(".userEmail").text(p.email).attr("href","mailto:"+p.email):$(".userEmailHolder").hide();
 			p.phone.length>0?$(".userPhone").text(p.phone).attr("href","tel:"+p.phone):$(".userPhoneHolder").hide();

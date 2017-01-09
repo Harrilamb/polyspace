@@ -833,7 +833,7 @@
 		$resultcheck = $conn->query($sqlcheck);
 		
 		$sqli="";
-		if($resultcheck->num_rows===0){
+		if($resultcheck->num_rows==0){
 			$sqli = "INSERT INTO PUBLIC_PROFILE (USERID,CREATED_BY_USER_ID,CREATED_DATE) VALUES (".$me.",".$me.",NULL);";
 		}
 		$sqlu = $sqli."UPDATE PUBLIC_PROFILE SET NAME='".$name."',ROLE='".$role."',DESCRIPTION='".$desc."',LINKEDIN='".$li."',EMAIL='".$email."',PHONE='".$phone."',PICTURE_PATH='".$pic."',UPDATED_BY_USER_ID=".$me." WHERE USERID=".$me;
@@ -861,13 +861,13 @@
 		if($user==0){
 			$user=$me;
 		}
-		$sql = "SELECT pp.USERID ppu, pp.NAME ppn, pp.ROLE ppr, pp.DESCRIPTION ppd, pp.LINKEDIN ppl, u.EMAIL ue, pp.EMAIL ppe, pp.PHONE ppp,pp.PICTURE_PATH pppp FROM public_profile pp LEFT JOIN user u ON (u.ID=pp.USERID) WHERE pp.USERID=".$user;
+		$sql = "SELECT pp.USERID ppu, pp.NAME ppn, pp.ROLE ppr, pp.DESCRIPTION ppd, pp.LINKEDIN ppl, u.EMAIL ue, pp.EMAIL ppe, pp.PHONE ppp,pp.PICTURE_PATH pppp FROM PUBLIC_PROFILE pp LEFT JOIN USER u ON (u.ID=pp.USERID) WHERE pp.USERID=".$user;
 		$result = $conn->query($sql);
-		if($result->num_rows===0){
+		if($result->num_rows==0){
 			$outp = array("uid"=>$user);
 		}else{
 			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
-				sizeof($rs["ppe"])===0?$email=$email = $rs["ue"]:$email = $rs["ppe"];
+				sizeof($rs["ppe"])==0?$email=$email = $rs["ue"]:$email = $rs["ppe"];
 				$default = "http://www.exodes.co/images/uploads/aero_dept_logo.jpg";
 				$size = 120;
 				$grav_url = "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
