@@ -71,6 +71,7 @@
 					<h2>Tools</h2>
 					<ul>
 						<li class="btn-link"><a href="spacecraft.php">System Of Systems Designer</a></li>
+						<li class="btn-link"><a href="pubprof.php">Public Profile Setup</a></li>
 					</ul>
 				</div>
 				<div>

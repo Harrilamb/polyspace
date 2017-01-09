@@ -33,6 +33,7 @@
 					<h3>Set Up All the Things</h3>
 					<a href="spacecraft.php" class="btn-link"><h4>Build a Spacechip!</h4></a> 
 					<a href="studentproof.php"><h4>Prove You're a Student</h4></a>
+					<a href="pubprof.php"><h4>Public Profile Setup</h4></a>
 				</div>
 			</div>	
 		</div>

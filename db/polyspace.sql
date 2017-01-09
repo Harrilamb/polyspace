@@ -811,6 +811,52 @@ create unique index XPK_JUT_POSITION on JUT_POSITION
    CODE
 );
 
+create table PUBLIC_PROFILE
+(
+   ID                   BIGINT not null auto_increment PRIMARY KEY,
+   USERID				BIGINT not null,
+   NAME					VARCHAR(60) not null,
+   ROLE		            VARCHAR(80) not null,
+   DESCRIPTION          VARCHAR(2000),
+   LINKEDIN             VARCHAR(80),
+   EMAIL                VARCHAR(255) null,
+   PHONE				VARCHAR(60),	
+   PICTURE_PATH			VARCHAR(255),
+   CREATED_BY_USER_ID   BIGINT not null,
+   CREATED_DATE         timestamp default '0000-00-00 00:00:00',
+   UPDATED_BY_USER_ID   BIGINT not null,
+   UPDATED_DATE         timestamp default now() on update now()
+);
+
+create unique index XPK_PUBLIC_PROFILE on PUBLIC_PROFILE
+(
+   ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_PUBLIC_PROFILE on PUBLIC_PROFILE
+(
+   USERID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT                                     */
+/*==============================================================*/
+create index XFK_USER_PUBLIC_PROFILE_CREATED on PUBLIC_PROFILE
+(
+   CREATED_BY_USER_ID
+);
+
+/*==============================================================*/
+/* Index: XFK_USER_DOCUMENT_UPDATED                             */
+/*==============================================================*/
+create index XFK_USER_PUBLIC_PROFILE_UPDATED on PUBLIC_PROFILE
+(
+   UPDATED_BY_USER_ID
+);
+
 INSERT INTO `user_type` (`CODE`, `NAME`, `COMMENT`) VALUES
 (1, 'guest', 'lowest privileges, can only view certain entities and details.'),
 (2, 'professor', 'minimum privileges, cannot edit projects but has certain tools specifically for them'),

@@ -87,6 +87,18 @@
 		echo setStudent($_POST["code"]);
 	}elseif($_POST["action"]=="set_privileges"){
 		echo getPrivilege();
+	}elseif($_POST["action"]=="set_public_profile"){
+		$name=$_POST["name"];
+		$role=$_POST["role"];
+		$desc=$_POST["desc"];
+		$li=$_POST["li"];
+		$email=$_POST["email"];
+		$phone=$_POST["phone"];
+		$pic=$_POST["pic"];
+		echo setPublicProfile($name,$role,$desc,$li,$email,$phone,$pic);
+	}elseif($_POST["action"]=="get_public_profile"){
+		$user = $_POST["user"];
+		echo getPublicProfile($user);
 	}elseif($_GET["action"]=="current_team"){
 		echo findTeams(1);
 	}elseif($_GET["action"]=="other_teams"){
@@ -810,5 +822,59 @@
 			$conn->close();
 		}
 		return $outp;
+	}
+	
+	function setPublicProfile($name,$role,$desc,$li,$email,$phone,$pic){
+		global $conn;
+		global $me;
+		global $org;
+		
+		$sqlcheck = "SELECT pp.ID ppi, pp.EMAIL ppe FROM public_profile pp WHERE pp.USERID=".$me;
+		$resultcheck = $conn->query($sqlcheck);
+		
+		$sqli="";
+		if($resultcheck->num_rows===0){
+			$sqli = "INSERT INTO PUBLIC_PROFILE (USERID,CREATED_BY_USER_ID,CREATED_DATE) VALUES (".$me.",".$me.",NULL);";
+		}
+		$sqlu = $sqli."UPDATE PUBLIC_PROFILE SET NAME='".$name."',ROLE='".$role."',DESCRIPTION='".$desc."',LINKEDIN='".$li."',EMAIL='".$email."',PHONE='".$phone."',PICTURE_PATH='".$pic."',UPDATED_BY_USER_ID=".$me." WHERE USERID=".$me;
+		$resultu = $conn->multi_query($sqlu);
+
+		if($resultu){
+			if($resultcheck->num_rows!==0){
+				$default = "http://www.exodes.co/images/uploads/aero_dept_logo.jpg";
+				$size = 120;
+				$grav_url = "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
+			}
+			return $grav_url;
+			return 1;
+		}else{
+			return $conn->error;
+		}
+		return 0;
+	}
+	
+	function getPublicProfile($user){
+		global $conn;
+		global $me;
+		global $org;
+		
+		if($user==0){
+			$user=$me;
+		}
+		$sql = "SELECT pp.USERID ppu, pp.NAME ppn, pp.ROLE ppr, pp.DESCRIPTION ppd, pp.LINKEDIN ppl, u.EMAIL ue, pp.EMAIL ppe, pp.PHONE ppp,pp.PICTURE_PATH pppp FROM public_profile pp LEFT JOIN user u ON (u.ID=pp.USERID) WHERE pp.USERID=".$user;
+		$result = $conn->query($sql);
+		if($result->num_rows===0){
+			$outp = array("uid"=>$user);
+		}else{
+			while($rs = $result->fetch_array(MYSQLI_ASSOC)) {
+				sizeof($rs["ppe"])===0?$email=$email = $rs["ue"]:$email = $rs["ppe"];
+				$default = "http://www.exodes.co/images/uploads/aero_dept_logo.jpg";
+				$size = 120;
+				$grav_url = "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
+				$outp = array("uid"=>$rs["ppu"],"name"=>$rs["ppn"],"role"=>$rs["ppr"],"description"=>$rs["ppd"],"li"=>$rs["ppl"],"email"=>$rs["ppe"],"phone"=>$rs["ppp"],"pic"=>$grav_url);
+			}
+		}
+		$conn->close();
+		return json_encode($outp);
 	}
 ?>

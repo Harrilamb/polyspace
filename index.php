@@ -37,6 +37,7 @@
 				</div>
 			</div>
 		</div>
+		<div style="width:100%;height:auto;position:absolute;bottom:10px;margin:0 auto;"><p class="moreDetails" style="color:white;display:block;margin:0 auto;text-align:center;font-family:arial;cursor:pointer;">DETAILS</p><img class="moreDetails" src="images/icons/slide-arrow.png" style="display:block;margin:0 auto;cursor:pointer;" width="75" height="auto"/></div>
 	</div>
 	<div class="mission">
 		<!--The class and mission-->
@@ -70,7 +71,7 @@
 		<!--Dynamic profile-->
 		<div class="container publicProfile" style="display:none;" height="auto">
 			<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 leftProf">
-				<h3 class="userRole"><u>Imaging Lead & Data Wrangler</u></h3>
+				<u><h3 class="userRole">Imaging Lead & Data Wrangler</h3></u>
 				<p class="userStory">
 					I am leading a team of 6 to find a way to meet the ridiculous requirements 
 					bestowed on the imaging subsystem of the spacecrafts. The constellation 
@@ -89,13 +90,13 @@
 					site which I have developed from scratch and posted all code on my 
 					<a href="https://github.com/Harrilamb">Github<i class="fa fa-github"></i></a>
 				</p>
-				<p><i class="fa fa-linkedin-square"></i><a class="userLink" href="https://www.linkedin.com/in/harrison-lambert">https://www.linkedin.com/in/harrison-lambert</a></p>
-				<p><i class="fa fa-envelope"></i><a class="userEmail" href="mailto:lambert.harrison@gmail.com">lambert.harrison@gmail.com</a></p>
-				<p><i class="fa fa-phone"></i><a class="userPhone" href="tel:5104214007">(510) 421-4007</a></p>
+				<p class="userLinkHolder"><i class="fa fa-linkedin-square"></i><a class="userLink" href="https://www.linkedin.com/in/harrison-lambert">https://www.linkedin.com/in/harrison-lambert</a></p>
+				<p class="userEmailHolder"><i class="fa fa-envelope"></i><a class="userEmail" href="mailto:lambert.harrison@gmail.com">lambert.harrison@gmail.com</a></p>
+				<p class="userPhoneHolder"><i class="fa fa-phone"></i><a class="userPhone" href="tel:5104214007">(510) 421-4007</a></p>
 			</div>
 			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 rightProf">
 				<h2 class="userName" style="text-align:center;background-color:black;color:white;padding:5px 5px;margin:0;word-wrap:break-word;">Harrison Lambert</h2>
-				<div style="overflow:hidden;width:100%;"><img class="userPhoto" src="images/users/harry.jpg" title="User Photo" alt="User Photo" width="100%"/></div>
+				<div style="overflow:hidden;width:100%;"><img class="userPhoto" src="images/uploads/aero_dept_logo.jpg" title="User Photo" alt="User Photo" width="100%"/></div>
 			</div>
 		</div>
 		<!--Where we are photo break-->

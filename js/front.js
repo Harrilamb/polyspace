@@ -1,4 +1,20 @@
 $(document).ready(function(){
+	var utilities = { 
+		"getURI":function(sParam){
+			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+				sURLVariables = sPageURL.split('&'),
+				sParameterName,
+				i;
+
+			for (i = 0; i < sURLVariables.length; i++) {
+				sParameterName = sURLVariables[i].split('=');
+
+				if (sParameterName[0] === sParam) {
+					return sParameterName[1] === undefined ? true : sParameterName[1];
+				}
+			}
+		}
+	};
 //Handle the login process
 	$(".ascend").click(function(){
 		  $.ajax({
@@ -110,4 +126,38 @@ $(document).ready(function(){
 	if(user!=undefined){
 		$(".publicProfile").css("display","block");
 	}
+	
+	function getPublicProfile(userid,callback){
+			$.ajax({
+				method:"POST",
+				url:"php/sqlHandlers.php",
+				data: { action: 'get_public_profile',
+						user:userid
+				},
+				success: function(data){
+					callback(data);
+				}
+			})
+	};
+	
+	var uid = utilities.getURI("u");
+	if(uid!=undefined){
+		var p = getPublicProfile(uid,function(retdata){			
+			var p = JSON.parse(retdata);
+			$(".userName").text(p.name);
+			$(".userRole").text(p.role);
+			$(".userStory").text(p.description);
+			p.li.length>0?$(".userLink").text(p.li).attr("href",p.li):$(".userLinkHolder").hide();
+			p.email.length>0?$(".userEmail").text(p.email).attr("href","mailto:"+p.email):$(".userEmailHolder").hide();
+			p.phone.length>0?$(".userPhone").text(p.phone).attr("href","tel:"+p.phone):$(".userPhoneHolder").hide();
+			$(".userPhoto").attr("src",p.pic);
+		});
+	};
+	
+	$(".moreDetails").click( function() {
+		$('html, body').animate({
+			scrollTop: $(".mission").offset().top
+		}, 1000);
+	});
+
 });

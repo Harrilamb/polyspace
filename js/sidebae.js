@@ -680,6 +680,17 @@ $(document).ready(function(){
 					return sParameterName[1] === undefined ? true : sParameterName[1];
 				}
 			}
+		},
+		
+		"getDatetime":function(){
+			var currentdate = new Date(); 
+			var datetime =  currentdate.getDate() + "/"
+							+ (currentdate.getMonth()+1)  + "/" 
+							+ currentdate.getFullYear() + " @ "  
+							+ currentdate.getHours() + ":"  
+							+ currentdate.getMinutes() + ":" 
+							+ currentdate.getSeconds();
+			return datetime;
 		}
 	};
 	
@@ -1090,5 +1101,59 @@ $(document).ready(function(){
 				}
 			});
 	});
+	
+//	Public Profile Setup
+	$(".publicSave").click(function(){
+		$.ajax({
+			method:"POST",
+			url:"../php/sqlHandlers.php",
+			data: { action: 'set_public_profile',
+					name: $("#publicName").val(),
+					role: $("#publicRole").val(),
+					desc: $("#publicDescription").val(),
+					li: $("#publicLinkedin").val(),
+					email: $("#publicEmail").val(),
+					phone: $("#publicPhone").val(),
+					pic: $("#publicPicture").val()
+			}
+		})
+		.done(function( msg ) {
+			if(msg.indexOf("www.gravatar.com/avatar")===-1){
+				console.log(msg);
+				$(".failedAlert").text("Save Failed: Try Reloading Page");
+			}else{
+				$("#publicPicture").attr("src",msg);
+				$(".successAlert").text("Last Save: "+utilities.getDatetime());
+			}
+		});
+	});
+	
+	function getPublicProfile(userid,callback){
+			var r = undefined;
+			$.ajax({
+				method:"POST",
+				url:"../php/sqlHandlers.php",
+				data: { action: 'get_public_profile',
+						user:userid
+				},
+				success: function(data){
+					callback(data);
+				}
+			})
+	};
+	
+	if(utilities.page=="pubprof"){
+		getPublicProfile(0,function(retdata){
+			var p = JSON.parse(retdata);
+			$("#personalURL").text("http://www.exodes.co?u="+p.uid);
+			$("#publicName").val(p.name);
+			$("#publicRole").val(p.role);
+			$("#publicDescription").val(p.description);
+			$("#publicLinkedin").val(p.li);
+			$("#publicEmail").val(p.email);
+			$("#publicPhone").val(p.phone);
+			$("#publicPicture").attr("src",p.pic);
+		});
+	}
 	
 });
