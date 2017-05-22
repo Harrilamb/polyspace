@@ -1,9 +1,9 @@
 <?php
 	function connectToMAMP(){
 		$servername = "localhost";
-		$username = "cosmicadmin";
-		$password = "DtQNSBuxFG5aerm4nw";
-		$dbname="polyspace";
+		$username = "change-to-your-value";
+		$password = "change-to-your-value";
+		$dbname="change-to-your-value";
 
 		// Create connection
 		$conn = new mysqli($servername, $username, $password,$dbname);
@@ -18,9 +18,9 @@
 	
 	function connectToServer(){
 		$servername = "localhost";
-		$username = "harrison_astrnot";
-		$password = "Zz4A7N9ND2KKm3Rbpq";
-		$dbname = "harrison_polyspace";
+		$username = "change-to-your-value";
+		$password = "change-to-your-value";
+		$dbname = "change-to-your-value";
 	
 		// Create connection
 		$conn = new mysqli($servername, $username, $password,$dbname);
